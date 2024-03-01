@@ -85,3 +85,13 @@ class _LineChartWidgetState extends State<LineChartWidget> {
     ));
   }
 }
+
+
+/// Pour appeler le widget, faire comme ceci : 
+
+/// Déclarer une liste de double en dehors du widget principal : List<double> data = <double> [2,4,6,11,3,6,4,1,1,1];
+/// SizedBox( /// the chart has to be part of a box to exist
+///   width: 440,
+///   height:280,
+///   child : LineChartWidget(getValues(data)) 
+/// ),
