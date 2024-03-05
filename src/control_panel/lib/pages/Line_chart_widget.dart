@@ -45,6 +45,12 @@ List<double> Update(value, valueListe){
   return valueListe;
 }
 
+///Convert the data coming from the websocket to an understanble type of data
+double convert(String value)
+{
+  return double.parse((value.substring(6)));
+}
+
 /// The widget is declared as stateful because the data will be 
 /// changed dynamically with the websocket
 class LineChartWidget extends StatefulWidget {
