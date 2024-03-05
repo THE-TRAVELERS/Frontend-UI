@@ -18,6 +18,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final WebSocket _socket = WebSocket(Constants.videoWebsocketURL);
+  final _chartSocket = WebSocketChannel.connect(Uri.parse(Constants.chartWebsocketURL));
   bool isStreaming = false;
   bool isRecording = false;
   bool isConnectedToController = false;
@@ -63,6 +64,8 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
+  List<double> data = [1,2,3,4,5,6,4];
+  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -143,7 +146,32 @@ class _HomePageState extends State<HomePage> {
               ),
               const Divider(),
               const SizedBox(height: 30),
-              isStreaming
+              Row(children: [
+                StreamBuilder(
+                  stream: _chartSocket.stream,
+                  builder: (context, snapshot){
+                    if (!snapshot.hasData) {
+                      return SizedBox(
+                        height: 480, 
+                        width: 640, 
+                        child: LineChartWidget(getValues(data))
+                      );
+                    }
+                    if (snapshot.connectionState == ConnectionState.done) {
+                      return SizedBox(
+                      height: 480, 
+                      width: 640, 
+                      child: LineChartWidget(getValues(data))
+                      );
+                    }
+                    return SizedBox(
+                      height: 480, 
+                      width: 640, 
+                      child: LineChartWidget(getValues(Update(convert(snapshot.data), data)))
+                    );
+                  }
+                ),
+                isStreaming
                   ? StreamBuilder(
                       //créer un stream d'images depuis la pi caméra
                       stream: _socket.stream,
@@ -188,6 +216,7 @@ class _HomePageState extends State<HomePage> {
                       height: 480,
                       child: Image.asset(Constants.pathToNoImages),
                     ),
+            ])
             ],
           ),
         ),
