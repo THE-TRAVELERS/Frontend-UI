@@ -1,9 +1,8 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'dart:convert';
-import 'dart:typed_data';
 import 'package:wifi_info_flutter/wifi_info_flutter.dart';
 
-import 'package:control_panel/pages/auth.dart';
+import 'package:control_panel/pages/auth/view/auth.dart';
 import 'package:control_panel/components/custom_stateicon.dart';
 import 'package:control_panel/components/websocket.dart';
 import 'package:control_panel/constants/constants.dart';
@@ -17,18 +16,25 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final WebSocket _socket = WebSocket(Constants.videoWebsocketURL);
+  final WebSocket _videoSocket = WebSocket(Constants.videoWebsocketURL);
+
   bool isStreaming = false;
   bool isRecording = false;
   bool isConnectedToController = false;
   String? wifiName;
 
+  List<double> data = [1, 2, 3, 4, 5, 6, 4];
+
   void getWifiName() async {
     try {
       wifiName = await WifiInfo().getWifiName();
-      //print('Connected to Wi-Fi network: $wifiName');
+      if (kDebugMode) {
+        print('Connected to Wi-Fi network: $wifiName');
+      }
     } catch (e) {
-      //print('Failed to get Wi-Fi network name: $e');
+      if (kDebugMode) {
+        print('Failed to get Wi-Fi network name: $e');
+      }
     }
   }
 
@@ -40,7 +46,7 @@ class _HomePageState extends State<HomePage> {
         isStreaming = !isStreaming;
       }
     });
-    isStreaming ? _socket.connect() : _socket.disconnect();
+    isStreaming ? _videoSocket.connect() : _videoSocket.disconnect();
   }
 
   void toggleRecording({bool quit = false}) {
@@ -143,51 +149,13 @@ class _HomePageState extends State<HomePage> {
               ),
               const Divider(),
               const SizedBox(height: 30),
-              isStreaming
-                  ? StreamBuilder(
-                      //créer un stream d'images depuis la pi caméra
-                      stream: _socket.stream,
-                      builder: (context, snapshot) {
-                        if (!snapshot.hasData) {
-                          // si pas de données en lecture, affiche un cercle de chargement
-                          return const SizedBox(
-                            width: 640,
-                            height: 480,
-                            child: Center(
-                              child: SizedBox(
-                                width: 60,
-                                height: 60,
-                                child: CircularProgressIndicator(
-                                  color: Color(0xFF1331F5),
-                                ),
-                              ),
-                            ),
-                          );
-                        }
-                        if (snapshot.connectionState == ConnectionState.done) {
-                          return const Center(
-                            child: Text("Connection Closed !"),
-                          );
-                        }
-                        return Image.memory(
-                          // décode les images contenues dans les websockets vers des images lisibles
-                          Uint8List.fromList(
-                            base64Decode(
-                              (snapshot.data.toString()),
-                            ),
-                          ),
-                          width: 640,
-                          height: 480,
-                          //gaplessPlayback: true,
-                          excludeFromSemantics: true,
-                        );
-                      },
-                    )
-                  : SizedBox(
-                      width: 640,
-                      height: 480,
-                      child: Image.asset(Constants.pathToNoImages),
-                    ),
+              Row(children: [
+                SizedBox(
+                  width: 640,
+                  height: 480,
+                  child: Image.asset(Constants.pathToNoImages),
+                ),
+              ])
             ],
           ),
         ),

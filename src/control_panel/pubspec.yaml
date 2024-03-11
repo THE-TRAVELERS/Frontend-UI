@@ -37,6 +37,8 @@ dependencies:
   url_launcher: ^6.1.11
   web_socket_channel: ^2.4.0
   wifi_info_flutter: ^2.0.2
+  fl_chart: ^0.65.0
+  collection: ^1.17.2
 
 dev_dependencies:
   flutter_test:

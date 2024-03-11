@@ -1,8 +1,6 @@
-import 'dart:js';
-
 import 'package:flutter/material.dart';
 
-import 'package:control_panel/pages/home.dart';
+import 'package:control_panel/pages/home/view/home.dart';
 import 'package:control_panel/components/custom_button.dart';
 import 'package:control_panel/components/custom_textfield.dart';
 
@@ -20,23 +18,23 @@ class LoginPage extends StatelessWidget {
           builder: (context) => const HomePage(),
         ));
     // ! TEMPORARY : for debug only
-    if (usernameController.text == 'admin' &&
-        passwordController.text == 'secret') {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (context) => const HomePage(),
-        ),
-      );
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-            'Veuillez réessayer. Nom d\'utilisateur ou mot de passe incorrect.',
-          ),
-        ),
-      );
-    }
+    // if (usernameController.text == 'admin' &&
+    //     passwordController.text == 'secret') {
+    //   Navigator.pushReplacement(
+    //     context,
+    //     MaterialPageRoute(
+    //       builder: (context) => const HomePage(),
+    //     ),
+    //   );
+    // } else {
+    //   ScaffoldMessenger.of(context).showSnackBar(
+    //     const SnackBar(
+    //       content: Text(
+    //         'Veuillez réessayer. Nom d\'utilisateur ou mot de passe incorrect.',
+    //       ),
+    //     ),
+    //   );
+    // }
   }
 
   @override
@@ -72,7 +70,6 @@ class LoginPage extends StatelessWidget {
                   labelText: 'Identifiant',
                   obscureText: false,
                 ),
-                //const SizedBox(height: 20),
                 CustomTextField(
                   controller: passwordController,
                   labelText: 'Mot de passe',
