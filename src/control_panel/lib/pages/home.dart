@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:web_socket_channel/web_socket_channel.dart';
 import 'dart:convert';
 import 'dart:typed_data';
 import 'package:wifi_info_flutter/wifi_info_flutter.dart';
 
+import 'package:control_panel/pages/Line_chart_widget.dart';
 import 'package:control_panel/pages/auth.dart';
 import 'package:control_panel/components/custom_stateicon.dart';
 import 'package:control_panel/components/websocket.dart';
@@ -18,6 +20,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final WebSocket _socket = WebSocket(Constants.videoWebsocketURL);
+  final _chartSocket = WebSocketChannel.connect(Uri.parse(Constants.chartWebsocketURL));
   bool isStreaming = false;
   bool isRecording = false;
   bool isConnectedToController = false;
@@ -62,6 +65,8 @@ class _HomePageState extends State<HomePage> {
       }
     });
   }
+
+  List<double> data = [1,2,3,4,5,6,4];
 
   @override
   Widget build(BuildContext context) {
@@ -143,7 +148,33 @@ class _HomePageState extends State<HomePage> {
               ),
               const Divider(),
               const SizedBox(height: 30),
-              isStreaming
+              Row(children: [
+                StreamBuilder(
+                  stream: _chartSocket.stream,
+                  builder: (context, snapshot){
+                    if (!snapshot.hasData) {
+                      return SizedBox(
+                        height: 480, 
+                        width: 640, 
+                        child: LineChartWidget(getValues(data))
+                      );
+                    }
+                    if (snapshot.connectionState == ConnectionState.done) {
+                      return SizedBox(
+                      height: 480, 
+                      width: 640, 
+                      child: LineChartWidget(getValues(data))
+                      );
+                    }
+                    return SizedBox(
+                      height: 280, 
+                      width: 440, 
+                      child: LineChartWidget(getValues(Update(convert(snapshot.data), data)))
+                    );
+                  }
+                ),
+                const SizedBox(width: 25),
+                isStreaming
                   ? StreamBuilder(
                       //créer un stream d'images depuis la pi caméra
                       stream: _socket.stream,
@@ -188,6 +219,7 @@ class _HomePageState extends State<HomePage> {
                       height: 480,
                       child: Image.asset(Constants.pathToNoImages),
                     ),
+            ])
             ],
           ),
         ),
