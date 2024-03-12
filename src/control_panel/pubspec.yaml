@@ -39,6 +39,7 @@ dependencies:
   wifi_info_flutter: ^2.0.2
   fl_chart: ^0.65.0
   collection: ^1.17.2
+  http: ^1.1.0
 
 dev_dependencies:
   flutter_test:

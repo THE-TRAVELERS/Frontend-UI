@@ -1,17 +1,19 @@
 import 'dart:async';
+import 'package:http/http.dart' as http;
+import 'dart:io';
 
 import 'package:web_socket_channel/web_socket_channel.dart';
 
 /// Defines a custom websocket for the video flux
-class WebSocket {
+class CustomWebSocket {
   // ------------------------- Members ------------------------- //
   late String url;
   WebSocketChannel? _channel;
   StreamController<bool> streamController = StreamController<bool>.broadcast();
 
   // --------------------- Constructor ---------------------- //
-  WebSocket(this.url);
-  
+  CustomWebSocket(this.url);
+
   // ---------------------- Getter Setters --------------------- //
   String get getUrl {
     return url;
@@ -32,8 +34,17 @@ class WebSocket {
   // ---------------------- Functions ----------------------- //
 
   /// Connects the current application to a websocket
-  void connect() async {
-    _channel = WebSocketChannel.connect(Uri.parse(url));
+  Future<bool> connect() async {
+    try {
+      final socket = await WebSocket.connect(url);
+      await socket.close();
+
+      _channel = WebSocketChannel.connect(Uri.parse(url));
+      print('Connection successful');
+      return true;
+    } catch (e) {
+      return false;
+    }
   }
 
   /// Disconnects the current application from a websocket

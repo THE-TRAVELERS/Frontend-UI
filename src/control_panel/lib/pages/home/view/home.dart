@@ -1,12 +1,13 @@
+import 'dart:async';
+
+import 'package:control_panel/components/custom_stateicon.dart';
+import 'package:control_panel/components/websocket.dart';
+import 'package:control_panel/constants/constants.dart';
+import 'package:control_panel/pages/auth/view/auth.dart';
 import 'package:control_panel/pages/health/view/health.dart';
 import 'package:control_panel/pages/home/logic/controller.dart';
 import 'package:control_panel/pages/sensors/view/sensors.dart';
 import 'package:flutter/material.dart';
-
-import 'package:control_panel/pages/auth/view/auth.dart';
-import 'package:control_panel/components/custom_stateicon.dart';
-import 'package:control_panel/components/websocket.dart';
-import 'package:control_panel/constants/constants.dart';
 
 /// Defines the home page of the application with the video flux and the controls
 class HomePage extends StatefulWidget {
@@ -17,8 +18,12 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final WebSocket _videoSocket = WebSocket(Constants.videoWebsocketURL);
-  final WebSocket _chartWebsocketURL = WebSocket(Constants.chartWebsocketURL);
+  final CustomWebSocket _videoSocket =
+      CustomWebSocket(Constants.videoWebsocketURL);
+  final CustomWebSocket _pressionWebsocketURL =
+      CustomWebSocket(Constants.websocketURL_1);
+  final CustomWebSocket _temperaturenWebsocketURL =
+      CustomWebSocket(Constants.websocketURL_2);
 
   bool isVideoToggled = false;
   bool isChartToggled = false;
@@ -29,7 +34,7 @@ class _HomePageState extends State<HomePage> {
   List<double> data = [1, 2, 3, 4, 5, 6, 4];
 
   void toggleStreaming({bool quit = false}) {
-    if (NetworkStatus.online) {
+    if (!NetworkStatus.online) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
         content: Text(
           'Veuillez connecter votre client au réseau de l\'ordinateur de bord.',
@@ -50,6 +55,24 @@ class _HomePageState extends State<HomePage> {
     // ! DEBUG ONLY, reactivate right away
   }
 
+  void tryToConnectWebsocket() {
+    Timer.periodic(const Duration(seconds: 4), (timer) async {
+      bool test = await _pressionWebsocketURL.connect();
+      test = await _temperaturenWebsocketURL.connect();
+      if (test) {
+        timer.cancel();
+      } else {
+        // ignore: use_build_context_synchronously
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text(
+            'Veuillez déployer le serveur websocket de l\'ordinateur de bord.',
+          ),
+          duration: Duration(seconds: 4),
+        ));
+      }
+    });
+  }
+
   void toggleConnectionToController({bool quit = false}) {
     setState(() {
       if (quit) {
@@ -62,6 +85,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    tryToConnectWebsocket();
     final height = MediaQuery.of(context).size.height;
     final width = MediaQuery.of(context).size.width;
     return Scaffold(
@@ -76,11 +100,11 @@ class _HomePageState extends State<HomePage> {
           Center(
             child: Row(children: [
               const Text(
-                'WiFi: ',
+                'WiFi : ',
                 style: TextStyle(color: Colors.white, fontSize: 20),
               ),
               Text(
-                NetworkStatus.online ? "connecté " : "aucun ",
+                NetworkStatus.online ? "connecté  " : "aucun  ",
                 style: TextStyle(
                   color: NetworkStatus.online
                       ? const Color.fromARGB(255, 105, 203, 109)
@@ -210,7 +234,7 @@ class _HomePageState extends State<HomePage> {
                                   : 'Démarrer le flux vidéo',
                               style: const TextStyle(fontSize: 20),
                             ),
-                            const SizedBox(width: 5),
+                            const SizedBox(width: 10),
                             StateIcon(isOn: isVideoToggled),
                           ],
                         ),
