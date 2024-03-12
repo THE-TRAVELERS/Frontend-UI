@@ -1,6 +1,5 @@
-import 'package:flutter/foundation.dart';
+import 'package:control_panel/pages/home/logic/controller.dart';
 import 'package:flutter/material.dart';
-import 'package:wifi_info_flutter/wifi_info_flutter.dart';
 
 import 'package:control_panel/pages/auth/view/auth.dart';
 import 'package:control_panel/components/custom_stateicon.dart';
@@ -17,36 +16,27 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final WebSocket _videoSocket = WebSocket(Constants.videoWebsocketURL);
+  final WebSocket _chartWebsocketURL = WebSocket(Constants.chartWebsocketURL);
 
-  bool isStreaming = false;
+  bool isVideoToggled = false;
+  bool isChartToggled = false;
   bool isRecording = false;
   bool isConnectedToController = false;
   String? wifiName;
 
   List<double> data = [1, 2, 3, 4, 5, 6, 4];
 
-  void getWifiName() async {
-    try {
-      wifiName = await WifiInfo().getWifiName();
-      if (kDebugMode) {
-        print('Connected to Wi-Fi network: $wifiName');
-      }
-    } catch (e) {
-      if (kDebugMode) {
-        print('Failed to get Wi-Fi network name: $e');
-      }
-    }
-  }
-
   void toggleStreaming({bool quit = false}) {
     setState(() {
       if (quit) {
-        isStreaming = false;
+        isVideoToggled = false;
       } else {
-        isStreaming = !isStreaming;
+        isVideoToggled = !isVideoToggled;
       }
     });
-    isStreaming ? _videoSocket.connect() : _videoSocket.disconnect();
+    // ! DEBUG ONLY, reactivate right away
+    //isVideoToggled ? _videoSocket.connect() : _videoSocket.disconnect();
+    // ! DEBUG ONLY, reactivate right away
   }
 
   void toggleRecording({bool quit = false}) {
@@ -71,22 +61,43 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    final height = MediaQuery.of(context).size.height;
+    final width = MediaQuery.of(context).size.width;
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: const Color(0xFF1331F5),
         title: Image.asset(
           Constants.pathToHighCenteredLogo,
-          width: 200,
+          width: 220,
           height: 100,
         ),
-        backgroundColor: const Color(0xFF1331F5),
+        actions: [
+          Center(
+            child: Row(children: [
+              const Text(
+                'WiFi: ',
+                style: TextStyle(color: Colors.white, fontSize: 20),
+              ),
+              Text(
+                NetworkStatus.online ? "connecté " : "aucun ",
+                style: TextStyle(
+                  color: NetworkStatus.online
+                      ? const Color.fromARGB(255, 105, 203, 109)
+                      : const Color.fromARGB(255, 255, 101, 90),
+                  fontSize: 20,
+                ),
+              ),
+            ]),
+          )
+        ],
       ),
       drawer: Drawer(
         child: ListView(
           padding: EdgeInsets.zero,
           children: [
             UserAccountsDrawerHeader(
-              accountName: const Text('admin'),
-              accountEmail: const Text('travelersesilv@gmail.com'),
+              accountName: const Text('session admin'),
+              accountEmail: const Text('the-travelers@outlook.com'),
               currentAccountPicture: CircleAvatar(
                 child: ClipOval(
                   child: Image.asset(
@@ -100,20 +111,20 @@ class _HomePageState extends State<HomePage> {
               decoration: const BoxDecoration(color: Color(0xFF1331F5)),
             ),
             ListTile(
-              leading: const Icon(Icons.camera),
-              title: const Text('Retour vidéo'),
-              onTap: () => toggleStreaming(),
-              trailing: StateIcon(isOn: isStreaming),
+              leading: const Icon(Icons.emergency_recording),
+              title: const Text('Acceuil'),
+              onTap: () {},
+              trailing: StateIcon(isOn: isVideoToggled),
             ),
             ListTile(
-              leading: const Icon(Icons.emergency_recording),
-              title: const Text('Enregistrement'),
+              leading: const Icon(Icons.sensors),
+              title: const Text('Données capteurs'),
               onTap: () => toggleRecording(),
               trailing: StateIcon(isOn: isRecording),
             ),
             ListTile(
-              leading: const Icon(Icons.control_camera),
-              title: const Text('Contrôleur moteur'),
+              leading: const Icon(Icons.health_and_safety_outlined),
+              title: const Text('Santé ordinateur de bord'),
               onTap: () => toggleConnectionToController(),
               trailing: StateIcon(isOn: isConnectedToController),
             ),
@@ -138,24 +149,91 @@ class _HomePageState extends State<HomePage> {
       ),
       body: SafeArea(
         child: Center(
-          child: Column(
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              const SizedBox(height: 25),
-              const Text(
-                'Bienvenue dans votre panneau de contrôle',
-                style: TextStyle(
-                  fontSize: 20,
+              Column(
+                children: [
+                  SizedBox(height: height * 0.03),
+                  Container(
+                    width: width * 0.2,
+                    height: height * 0.25,
+                    color: Colors.blue,
+                  ),
+                  SizedBox(height: height * 0.008),
+                  Container(
+                    width: width * 0.2,
+                    height: height * 0.25,
+                    color: Colors.orange,
+                  ),
+                  SizedBox(height: height * 0.008),
+                  Container(
+                    width: width * 0.2,
+                    height: height * 0.25,
+                    color: Colors.green,
+                  ),
+                ],
+              ),
+              Center(
+                child: Column(
+                  children: [
+                    SizedBox(height: height * 0.08),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        Center(
+                          child: SizedBox(
+                            width: 640,
+                            height: 480,
+                            child: Image.asset(Constants.pathToNoImages),
+                          ),
+                        )
+                      ],
+                    ),
+                    SizedBox(height: height * 0.03),
+                    IntrinsicWidth(
+                      child: ElevatedButton(
+                        onPressed: () => toggleStreaming(),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              isVideoToggled
+                                  ? 'Arrêter le flux vidéo'
+                                  : 'Démarrer le flux vidéo',
+                              style: const TextStyle(fontSize: 20),
+                            ),
+                            const SizedBox(width: 5),
+                            StateIcon(isOn: isVideoToggled),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
-              const Divider(),
-              const SizedBox(height: 30),
-              Row(children: [
-                SizedBox(
-                  width: 640,
-                  height: 480,
-                  child: Image.asset(Constants.pathToNoImages),
-                ),
-              ])
+              Column(
+                children: [
+                  SizedBox(height: height * 0.03),
+                  Container(
+                    width: width * 0.2,
+                    height: height * 0.25,
+                    color: Colors.blue,
+                  ),
+                  SizedBox(height: height * 0.008),
+                  Container(
+                    width: width * 0.2,
+                    height: height * 0.25,
+                    color: Colors.orange,
+                  ),
+                  SizedBox(height: height * 0.008),
+                  Container(
+                    width: width * 0.2,
+                    height: height * 0.25,
+                    color: Colors.green,
+                  ),
+                ],
+              ),
             ],
           ),
         ),

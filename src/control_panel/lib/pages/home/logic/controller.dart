@@ -1,5 +1,11 @@
+// ignore: avoid_web_libraries_in_flutter
+import 'dart:html' as html;
+
 import 'package:collection/collection.dart';
 
+class NetworkStatus {
+  static bool get online => html.window.navigator.onLine ?? false;
+}
 ///class value for mapping. X for coordinates and Y for value.
 class Value {
   final double x;
