@@ -1,4 +1,6 @@
+import 'package:control_panel/pages/health/view/health.dart';
 import 'package:control_panel/pages/home/logic/controller.dart';
+import 'package:control_panel/pages/sensors/view/sensors.dart';
 import 'package:flutter/material.dart';
 
 import 'package:control_panel/pages/auth/view/auth.dart';
@@ -27,6 +29,15 @@ class _HomePageState extends State<HomePage> {
   List<double> data = [1, 2, 3, 4, 5, 6, 4];
 
   void toggleStreaming({bool quit = false}) {
+    if (NetworkStatus.online) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: Text(
+          'Veuillez connecter votre client au réseau de l\'ordinateur de bord.',
+        ),
+        duration: Duration(seconds: 5),
+      ));
+      return;
+    }
     setState(() {
       if (quit) {
         isVideoToggled = false;
@@ -37,16 +48,6 @@ class _HomePageState extends State<HomePage> {
     // ! DEBUG ONLY, reactivate right away
     //isVideoToggled ? _videoSocket.connect() : _videoSocket.disconnect();
     // ! DEBUG ONLY, reactivate right away
-  }
-
-  void toggleRecording({bool quit = false}) {
-    setState(() {
-      if (quit) {
-        isRecording = false;
-      } else {
-        isRecording = !isRecording;
-      }
-    });
   }
 
   void toggleConnectionToController({bool quit = false}) {
@@ -114,19 +115,26 @@ class _HomePageState extends State<HomePage> {
               leading: const Icon(Icons.emergency_recording),
               title: const Text('Acceuil'),
               onTap: () {},
-              trailing: StateIcon(isOn: isVideoToggled),
             ),
             ListTile(
               leading: const Icon(Icons.sensors),
               title: const Text('Données capteurs'),
-              onTap: () => toggleRecording(),
-              trailing: StateIcon(isOn: isRecording),
+              onTap: () => Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const SensorsPage(),
+                ),
+              ),
             ),
             ListTile(
               leading: const Icon(Icons.health_and_safety_outlined),
               title: const Text('Santé ordinateur de bord'),
-              onTap: () => toggleConnectionToController(),
-              trailing: StateIcon(isOn: isConnectedToController),
+              onTap: () => Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const HealthPage(),
+                ),
+              ),
             ),
             const Divider(),
             ListTile(
@@ -134,7 +142,6 @@ class _HomePageState extends State<HomePage> {
               title: const Text('Déconnexion'),
               onTap: () {
                 toggleStreaming(quit: true);
-                toggleRecording(quit: true);
                 toggleConnectionToController(quit: true);
                 Navigator.pushReplacement(
                   context,

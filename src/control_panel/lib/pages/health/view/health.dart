@@ -1,17 +1,17 @@
 import 'package:control_panel/constants/constants.dart';
 import 'package:control_panel/pages/auth/view/auth.dart';
-import 'package:control_panel/pages/health/view/health.dart';
 import 'package:control_panel/pages/home/view/home.dart';
+import 'package:control_panel/pages/sensors/view/sensors.dart';
 import 'package:flutter/material.dart';
 
-class SensorsPage extends StatefulWidget {
-  const SensorsPage({Key? key}) : super(key: key);
+class HealthPage extends StatefulWidget {
+  const HealthPage({Key? key}) : super(key: key);
 
   @override
-  State<SensorsPage> createState() => _SensorsPageState();
+  State<HealthPage> createState() => _HealthPageState();
 }
 
-class _SensorsPageState extends State<SensorsPage> {
+class _HealthPageState extends State<HealthPage> {
   bool isConnectedToController = false;
 
   void toggleConnectionToController({bool quit = false}) {
@@ -58,26 +58,26 @@ class _SensorsPageState extends State<SensorsPage> {
               leading: const Icon(Icons.emergency_recording),
               title: const Text('Acceuil'),
               onTap: () => Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const HomePage(),
-                    ),
-                  ),
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const HomePage(),
+                ),
+              ),
             ),
             ListTile(
               leading: const Icon(Icons.emergency_recording),
               title: const Text('Données capteurs'),
-              onTap: () {},
+              onTap: () => Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const SensorsPage(),
+                ),
+              ),
             ),
             ListTile(
               leading: const Icon(Icons.control_camera),
               title: const Text('Santé ordinateur de bord'),
-              onTap: () => Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const HealthPage(),
-                    ),
-                  ),
+              onTap: () {},
             ),
             const Divider(),
             ListTile(
@@ -102,7 +102,7 @@ class _SensorsPageState extends State<SensorsPage> {
             children: [
               SizedBox(height: 25),
               Text(
-                'Bienvenue dans la section des capteurs.',
+                'Bienvenue dans la section santé de \'ordinateur de bord.',
                 style: TextStyle(
                   fontSize: 20,
                 ),
