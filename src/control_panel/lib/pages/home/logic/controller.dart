@@ -52,5 +52,5 @@ List<double> update(value, valueListe) {
 ///Convert the data coming from the websocket to an understanble type of data
 double convert(String value) {
   // Virer les caractères inutiles initiaux
-  return double.parse((value.substring(6)));
+  return double.parse(value);
 }

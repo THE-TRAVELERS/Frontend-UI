@@ -1,5 +1,7 @@
 import 'dart:async';
+import 'package:rxdart/rxdart.dart';
 
+import 'package:control_panel/components/custom_linechart.dart';
 import 'package:control_panel/components/custom_stateicon.dart';
 import 'package:control_panel/components/websocket.dart';
 import 'package:control_panel/constants/constants.dart';
@@ -31,7 +33,7 @@ class _HomePageState extends State<HomePage> {
   bool isConnectedToController = false;
   String? wifiName;
 
-  List<double> data = [1, 2, 3, 4, 5, 6, 4];
+  List<double> data = [];
 
   void toggleStreaming({bool quit = false}) {
     if (!NetworkStatus.online) {
@@ -50,27 +52,29 @@ class _HomePageState extends State<HomePage> {
         isVideoToggled = !isVideoToggled;
       }
     });
-    // ! DEBUG ONLY, reactivate right away
-    //isVideoToggled ? _videoSocket.connect() : _videoSocket.disconnect();
-    // ! DEBUG ONLY, reactivate right away
+    isVideoToggled ? _videoSocket.connect() : _videoSocket.disconnect();
   }
 
-  void tryToConnectWebsocket() {
-    Timer.periodic(const Duration(seconds: 10), (timer) async {
-      bool test = await _pressionWebsocketURL.connect();
-      test = await _temperatureWebsocketURL.connect();
-      if (test) {
-        timer.cancel();
-      } else {
-        // ignore: use_build_context_synchronously
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: Text(
-            'Veuillez déployer le serveur websocket de l\'ordinateur de bord.',
-          ),
-          duration: Duration(seconds: 4),
-        ));
-      }
-    });
+  void tryToConnectWebsocket() async {
+    // Try to connect immediately
+    bool test = await _pressionWebsocketURL.connect();
+    if (!test) {
+      // Start the timer if the connection failed
+      Timer.periodic(const Duration(seconds: 10), (timer) async {
+        test = await _pressionWebsocketURL.connect();
+        if (test) {
+          timer.cancel();
+        } else {
+          // ignore: use_build_context_synchronously
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+            content: Text(
+              'Veuillez déployer le serveur websocket de l\'ordinateur de bord.',
+            ),
+            duration: Duration(seconds: 4),
+          ));
+        }
+      });
+    }
   }
 
   void toggleConnectionToController({bool quit = false}) {
@@ -186,11 +190,28 @@ class _HomePageState extends State<HomePage> {
               Column(
                 children: [
                   SizedBox(height: height * 0.03),
-                  Container(
-                    width: width * 0.2,
-                    height: height * 0.25,
-                    color: Colors.blue,
-                  ),
+                  StreamBuilder(
+                      stream: _pressionWebsocketURL.stream,
+                      builder: (context, snapshot) {
+                        if (!snapshot.hasData) {
+                          return SizedBox(
+                              width: width * 0.2,
+                              height: height * 0.25,
+                              child: CustomLineChart(getValues(data)));
+                        }
+                        if (snapshot.connectionState == ConnectionState.done) {
+                          tryToConnectWebsocket();
+                          return SizedBox(
+                              width: width * 0.2,
+                              height: height * 0.25,
+                              child: CustomLineChart(getValues(data)));
+                        }
+                        return SizedBox(
+                            width: width * 0.2,
+                            height: height * 0.25,
+                            child: CustomLineChart(getValues(
+                                update(convert(snapshot.data), data))));
+                      }),
                   SizedBox(height: height * 0.008),
                   Container(
                     width: width * 0.2,

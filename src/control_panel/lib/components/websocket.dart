@@ -33,9 +33,10 @@ class CustomWebSocket {
 
   /// Connects the current application to a websocket
   Future<bool> connect() async {
-      _channel = WebSocketChannel.connect(Uri.parse(url));
     try {
+      _channel = WebSocketChannel.connect(Uri.parse(url));
       await _channel?.ready;
+      streamController.add(true);
       return true;
     } catch (e) {
       return false;
@@ -45,7 +46,12 @@ class CustomWebSocket {
   /// Disconnects the current application from a websocket
   void disconnect() {
     if (_channel != null) {
-      _channel!.sink.close();
+      try {
+        _channel!.sink.close();
+        streamController.add(false);
+      } catch (e) {
+        print('Failed to close WebSocket: $e');
+      }
     }
   }
 }

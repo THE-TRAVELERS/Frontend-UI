@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 class CustomLineChart extends StatefulWidget {
   final List<Value> points;
 
-  const CustomLineChart(this.points, {Key? key}) : super(key: key);
+  const CustomLineChart(this.points, {super.key});
 
   @override
   State<CustomLineChart> createState() => _CustomLineChartState();

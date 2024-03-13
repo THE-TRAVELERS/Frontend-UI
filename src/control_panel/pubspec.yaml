@@ -37,9 +37,10 @@ dependencies:
   url_launcher: ^6.1.11
   web_socket_channel: ^2.4.0
   wifi_info_flutter: ^2.0.2
-  fl_chart: ^0.65.0
+  fl_chart: ^0.66.2
   collection: ^1.17.2
   http: ^1.1.0
+  rxdart: ^0.27.7
 
 dev_dependencies:
   flutter_test:
@@ -50,7 +51,7 @@ dev_dependencies:
   # activated in the `analysis_options.yaml` file located at the root of your
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
-  flutter_lints: ^2.0.0
+  flutter_lints: ^3.0.1
   readmore: ^2.2.0
 
 # For information on the generic Dart part of this file, see the
