@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
 /// Defines a custom websocket for the video flux
@@ -21,11 +22,15 @@ class CustomWebSocket {
     this.url = url;
   }
 
+  WebSocketChannel? get getChannel {
+    return _channel;
+  }
+
   Stream<dynamic> get stream {
     if (_channel != null) {
       return _channel!.stream;
     } else {
-      throw WebSocketChannelException("The connection was not established !");
+      return const Stream.empty();
     }
   }
 
@@ -51,7 +56,9 @@ class CustomWebSocket {
         _channel!.sink.close();
         streamController.add(false);
       } catch (e) {
-        print('Failed to close WebSocket: $e');
+        if (kDebugMode) {
+          print('Failed to close WebSocket: $e');
+        }
       }
     }
   }

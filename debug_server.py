@@ -4,7 +4,7 @@ from websockets.exceptions import ConnectionClosed
 
 client_id = 0
 
-async def test(websocket, path):
+async def runner(websocket):
     global client_id
     client_id += 1
     current_client_id = client_id
@@ -20,7 +20,7 @@ async def test(websocket, path):
         print(f"Client {current_client_id} disconnected")
 
 async def main():
-    async with websockets.serve(test, "localhost", 8765):
+    async with websockets.serve(runner, "localhost", 8765):
         await asyncio.Future()
 
 if __name__ == "__main__":

@@ -9,20 +9,17 @@ class CustomButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 500),
-      child: ElevatedButton(
-        onPressed: onTap,
-        style: ElevatedButton.styleFrom(
-          backgroundColor: const Color(0xFF1331F5),
-          padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 20),
-          textStyle: const TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-          ),
+    return ElevatedButton(
+      onPressed: onTap,
+      style: ElevatedButton.styleFrom(
+        backgroundColor: const Color(0xFF1331F5),
+        padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 20),
+        textStyle: const TextStyle(
+          fontSize: 20,
+          fontWeight: FontWeight.bold,
         ),
-        child: Text(text),
       ),
+      child: Text(text, style: const TextStyle(color: Colors.white),),
     );
   }
 }
@@ -38,9 +35,11 @@ class StateButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
+    final height = MediaQuery.of(context).size.height;
     return SizedBox(
-      height: 50,
-      width: 280,
+      height: height * 0.08,
+      width: width * 0.3,
       child: ElevatedButton(
         onPressed: onTap,
         style: ElevatedButton.styleFrom(

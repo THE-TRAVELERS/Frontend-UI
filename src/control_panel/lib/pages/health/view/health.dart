@@ -88,7 +88,7 @@ class _HealthPageState extends State<HealthPage> {
                 Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => LoginPage(),
+                    builder: (context) => AuthPage(),
                   ),
                 );
               },

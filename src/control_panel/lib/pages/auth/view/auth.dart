@@ -1,40 +1,32 @@
-import 'package:flutter/material.dart';
-
-import 'package:control_panel/pages/home/view/home.dart';
 import 'package:control_panel/components/custom_button.dart';
 import 'package:control_panel/components/custom_textfield.dart';
+import 'package:control_panel/pages/home/view/home.dart';
+import 'package:flutter/material.dart';
 
-class LoginPage extends StatelessWidget {
-  LoginPage({super.key});
+class AuthPage extends StatelessWidget {
+  AuthPage({super.key});
 
   final usernameController = TextEditingController();
   final passwordController = TextEditingController();
 
   void onSignIn(BuildContext context) {
-    // ! TEMPORARY : for debug only
-    Navigator.pushReplacement(
+    if (usernameController.text == 'admin' &&
+        passwordController.text == 'secret') {
+      Navigator.pushReplacement(
         context,
         MaterialPageRoute(
           builder: (context) => const HomePage(),
-        ));
-    // ! TEMPORARY : for debug only
-    // if (usernameController.text == 'admin' &&
-    //     passwordController.text == 'secret') {
-    //   Navigator.pushReplacement(
-    //     context,
-    //     MaterialPageRoute(
-    //       builder: (context) => const HomePage(),
-    //     ),
-    //   );
-    // } else {
-    //   ScaffoldMessenger.of(context).showSnackBar(
-    //     const SnackBar(
-    //       content: Text(
-    //         'Veuillez réessayer. Nom d\'utilisateur ou mot de passe incorrect.',
-    //       ),
-    //     ),
-    //   );
-    // }
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Veuillez réessayer. Nom d\'utilisateur ou mot de passe incorrect.',
+          ),
+        ),
+      );
+    }
   }
 
   @override
@@ -49,22 +41,22 @@ class LoginPage extends StatelessWidget {
               children: [
                 Image.asset(
                   'img/logotype_noir_vide.png',
-                  width: 400,
-                  height: 160,
+                  width: width * 0.3,
+                  height: height * 0.2,
                 ),
                 const Text(
                   'Veuillez vous identifier pour accéder au panneau de contrôle.',
-                  style: TextStyle(fontSize: 20),
+                  style: TextStyle(fontSize: 18),
                 ),
-                SizedBox(height: height * 0.05),
+                SizedBox(height: height * 0.03),
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 400),
+                  padding: EdgeInsets.symmetric(horizontal: width * 0.3),
                   child: Divider(
                     thickness: 0.5,
                     color: Colors.grey[400],
                   ),
                 ),
-                SizedBox(height: height * 0.05),
+                SizedBox(height: height * 0.03),
                 CustomTextField(
                   controller: usernameController,
                   labelText: 'Identifiant',
@@ -104,7 +96,7 @@ class LoginPage extends StatelessWidget {
                 ),
                 SizedBox(height: height * 0.04),
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 400),
+                  padding: EdgeInsets.symmetric(horizontal: width * 0.3),
                   child: Row(
                     children: [
                       Expanded(

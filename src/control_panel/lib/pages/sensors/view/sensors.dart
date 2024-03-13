@@ -88,7 +88,7 @@ class _SensorsPageState extends State<SensorsPage> {
                 Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => LoginPage(),
+                    builder: (context) => AuthPage(),
                   ),
                 );
               },
