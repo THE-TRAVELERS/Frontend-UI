@@ -39,6 +39,7 @@ class CustomWebSocket {
       streamController.add(true);
       return true;
     } catch (e) {
+      streamController.add(false);
       return false;
     }
   }
