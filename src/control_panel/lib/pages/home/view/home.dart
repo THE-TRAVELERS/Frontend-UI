@@ -87,6 +87,12 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
+  void closeAllWebsockets() {
+    _videoSocket.disconnect();
+    _pressionWebsocketURL.disconnect();
+    _temperatureWebsocketURL.disconnect();
+  }
+
   @override
   Widget build(BuildContext context) {
     tryToConnectWebsocket();
@@ -177,6 +183,13 @@ class _HomePageState extends State<HomePage> {
                     builder: (context) => LoginPage(),
                   ),
                 );
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.close),
+              title: const Text('Close all WebSockets'),
+              onTap: () {
+                closeAllWebsockets();
               },
             ),
           ],
