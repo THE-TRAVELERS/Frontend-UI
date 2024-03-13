@@ -35,12 +35,9 @@ class CustomWebSocket {
 
   /// Connects the current application to a websocket
   Future<bool> connect() async {
-    try {
-      final socket = await WebSocket.connect(url);
-      await socket.close();
-
       _channel = WebSocketChannel.connect(Uri.parse(url));
-      print('Connection successful');
+    try {
+      await _channel?.ready;
       return true;
     } catch (e) {
       return false;

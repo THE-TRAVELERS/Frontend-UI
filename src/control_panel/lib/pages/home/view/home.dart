@@ -22,7 +22,7 @@ class _HomePageState extends State<HomePage> {
       CustomWebSocket(Constants.videoWebsocketURL);
   final CustomWebSocket _pressionWebsocketURL =
       CustomWebSocket(Constants.websocketURL_1);
-  final CustomWebSocket _temperaturenWebsocketURL =
+  final CustomWebSocket _temperatureWebsocketURL =
       CustomWebSocket(Constants.websocketURL_2);
 
   bool isVideoToggled = false;
@@ -56,9 +56,9 @@ class _HomePageState extends State<HomePage> {
   }
 
   void tryToConnectWebsocket() {
-    Timer.periodic(const Duration(seconds: 4), (timer) async {
+    Timer.periodic(const Duration(seconds: 10), (timer) async {
       bool test = await _pressionWebsocketURL.connect();
-      test = await _temperaturenWebsocketURL.connect();
+      test = await _temperatureWebsocketURL.connect();
       if (test) {
         timer.cancel();
       } else {
