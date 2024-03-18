@@ -95,7 +95,7 @@ class _HomePageState extends State<HomePage> {
   void closeAllWebsockets() {
     _timer?.cancel();
 
-    
+
     // _videoSocket.disconnect();
     _pressionWebsocketURL.disconnect();
     // _temperatureWebsocketURL.disconnect();
@@ -136,7 +136,7 @@ class _HomePageState extends State<HomePage> {
                   style: TextStyle(color: Colors.white, fontSize: 20),
                 ),
                 Text(
-                  NetworkStatus.online ? "connecté  " : "aucun  ",
+                  NetworkStatus.online ? "connecté" : "aucun",
                   style: TextStyle(
                     color: NetworkStatus.online
                         ? const Color.fromARGB(255, 105, 203, 109)
@@ -144,6 +144,7 @@ class _HomePageState extends State<HomePage> {
                     fontSize: 20,
                   ),
                 ),
+                const Text('  ')
               ],
             ),
           )
