@@ -1,3 +1,4 @@
+import argparse
 import asyncio
 import websockets
 from websockets.exceptions import ConnectionClosed
@@ -19,13 +20,17 @@ async def runner(websocket):
     except ConnectionClosed:
         print(f"Client {current_client_id} disconnected")
 
-async def main():
-    async with websockets.serve(runner, "localhost", 8765):
+async def main(port):
+    async with websockets.serve(runner, "localhost", port):
         await asyncio.Future()
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Start a WebSocket server.")
+    parser.add_argument("port", type=int, help="The port number to listen on.")
+    args = parser.parse_args()
+
     try:
-        print("Server started on: ws://localhost:8765. Press Ctrl+C to stop.\n")
-        asyncio.run(main())
+        print(f"Server started on: ws://localhost:{args.port}. Press Ctrl+C to stop.\n")
+        asyncio.run(main(args.port))
     except KeyboardInterrupt:
         print("\nServer stopped by user.")

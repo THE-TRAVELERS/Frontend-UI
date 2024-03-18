@@ -93,9 +93,13 @@ class _HomePageState extends State<HomePage> {
   }
 
   void closeAllWebsockets() {
+    _timer?.cancel();
+
+    
     // _videoSocket.disconnect();
     _pressionWebsocketURL.disconnect();
     // _temperatureWebsocketURL.disconnect();
+
   }
 
   @override
