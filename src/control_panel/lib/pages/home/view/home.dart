@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:control_panel/components/custom_linechart.dart';
 import 'package:control_panel/components/custom_stateicon.dart';
@@ -23,6 +25,7 @@ class _HomePageState extends State<HomePage> {
   final CustomWebSocket _videoSocket =
       CustomWebSocket(Constants.videoWebsocketURL);
   bool isVideoToggled = false;
+  Timer? videoTimer;
 
   // PRESSURE
   final CustomWebSocket _pressureWebsocketURL =
@@ -55,15 +58,6 @@ class _HomePageState extends State<HomePage> {
   }
 
   void toggleStreaming({bool quit = false}) {
-    if (!NetworkStatus.online) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-        content: Text(
-          'Veuillez connecter votre client au réseau de l\'ordinateur de bord.',
-        ),
-        duration: Duration(seconds: 5),
-      ));
-      return;
-    }
     setState(() {
       if (quit) {
         isVideoToggled = false;
@@ -71,7 +65,35 @@ class _HomePageState extends State<HomePage> {
         isVideoToggled = !isVideoToggled;
       }
     });
-    isVideoToggled ? _videoSocket.connect() : _videoSocket.disconnect();
+    if (isVideoToggled) {
+      videoRoutine();
+    } else {
+      videoTimer?.cancel();
+      _videoSocket.disconnect();
+    }
+  }
+
+  void videoRoutine() async {
+    videoTimer = Timer.periodic(const Duration(seconds: 10), (timer) async {
+      if (_videoSocket.getChannel == null ||
+          _videoSocket.getChannel!.closeCode != null) {
+        bool isConnected = await _videoSocket.connect();
+        if (isConnected != isVideoToggled) {
+          setState(() {
+            isVideoToggled = isConnected;
+          });
+        }
+        if (!isVideoToggled) {
+          // ignore: use_build_context_synchronously
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+            content: Text(
+              'Veuillez déployer le serveur websocket de l\'ordinateur de bord.',
+            ),
+            duration: Duration(seconds: 3),
+          ));
+        }
+      }
+    });
   }
 
   void pressureRoutine() async {
@@ -155,6 +177,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   void closeAllWebsockets() {
+    videoTimer?.cancel();
     pressureTimer?.cancel();
     temperatureTimer?.cancel();
     humidityTimer?.cancel();
@@ -167,8 +190,10 @@ class _HomePageState extends State<HomePage> {
 
   @override
   void dispose() {
+    videoTimer?.cancel();
     pressureTimer?.cancel();
     temperatureTimer?.cancel();
+    humidityTimer?.cancel();
 
     _videoSocket.disconnect();
     _pressureWebsocketURL.disconnect();
@@ -317,12 +342,48 @@ class _HomePageState extends State<HomePage> {
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
                         Center(
-                          child: SizedBox(
-                            width: 640,
-                            height: 480,
-                            child: Image.asset(Constants.pathToNoImages),
-                          ),
-                        )
+                            child: StreamBuilder(
+                          stream: _videoSocket.stream,
+                          builder: (context, snapshot) {
+                            if (snapshot.connectionState ==
+                                    ConnectionState.waiting &&
+                                !snapshot.hasData) {
+                              return const SizedBox(
+                                width: 640,
+                                height: 480,
+                                child: Center(
+                                  child: SizedBox(
+                                    width: 60,
+                                    height: 60,
+                                    child: CircularProgressIndicator(
+                                      color: Color(0xFF1331F5),
+                                    ),
+                                  ),
+                                ),
+                              );
+                            }
+                            if (snapshot.connectionState ==
+                                    ConnectionState.active &&
+                                snapshot.hasData) {
+                              return Image.memory(
+                                Uint8List.fromList(
+                                  base64Decode(
+                                    (snapshot.data.toString()),
+                                  ),
+                                ),
+                                width: 640,
+                                height: 480,
+                                gaplessPlayback: true,
+                                excludeFromSemantics: true,
+                              );
+                            }
+                            return SizedBox(
+                              width: 640,
+                              height: 480,
+                              child: Image.asset(Constants.pathToNoImages),
+                            );
+                          },
+                        ))
                       ],
                     ),
                     SizedBox(height: height * 0.03),
