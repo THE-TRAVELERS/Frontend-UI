@@ -1,16 +1,49 @@
-# control_panel
+# Control Panel
 
-A new Flutter project.
+## Start the websockets server
 
-## Getting Started
+Start one terminal and run the following command:
 
-This project is a starting point for a Flutter application.
+```bash
+python debug_server.py 8765
+```
 
-A few resources to get you started if this is your first Flutter project:
+Then start another terminal and run the following command:
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+```bash
+python debug_server.py 8766
+```
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Launch the app
+
+Change directory to the root of the project:
+
+```bash
+cd src/control_panel
+```
+
+Then run the following command:
+
+```bash
+flutter run -d chrome
+```
+
+## Build to launch locally
+
+build the project for web:
+
+```bash
+flutter build web
+```
+
+Then run the following command:
+
+```bash
+python -m http.server 8000 --directory build/web
+```
+
+Then open your browser and go to the following URL:
+
+```bash
+http://localhost:8000
+```
