@@ -38,11 +38,20 @@ class _HomePageState extends State<HomePage> {
   List<double> temperatureData = [];
   Timer? temperatureTimer;
 
+  // HUMIDITY
+  final CustomWebSocket _humidityWebsocketURL =
+      CustomWebSocket(Constants.humidityURL);
+  bool isHumidityServerConnected = false;
+  List<double> humidityData = [];
+  Timer? humidityTimer;
+
   @override
   void initState() {
     super.initState();
+
     pressureRoutine();
     temperatureRoutine();
+    humidityRoutine();
   }
 
   void toggleStreaming({bool quit = false}) {
@@ -112,6 +121,29 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
+  void humidityRoutine() async {
+    humidityTimer = Timer.periodic(const Duration(seconds: 10), (timer) async {
+      if (_humidityWebsocketURL.getChannel == null ||
+          _humidityWebsocketURL.getChannel!.closeCode != null) {
+        bool isConnected = await _humidityWebsocketURL.connect();
+        if (isConnected != isHumidityServerConnected) {
+          setState(() {
+            isHumidityServerConnected = isConnected;
+          });
+        }
+        if (!isHumidityServerConnected) {
+          // ignore: use_build_context_synchronously
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+            content: Text(
+              'Veuillez déployer le serveur websocket de l\'ordinateur de bord.',
+            ),
+            duration: Duration(seconds: 3),
+          ));
+        }
+      }
+    });
+  }
+
   void toggleConnectionToController({bool quit = false}) {
     setState(() {
       if (quit) {
@@ -125,10 +157,12 @@ class _HomePageState extends State<HomePage> {
   void closeAllWebsockets() {
     pressureTimer?.cancel();
     temperatureTimer?.cancel();
+    humidityTimer?.cancel();
 
     _videoSocket.disconnect();
     _pressureWebsocketURL.disconnect();
     _temperatureWebsocketURL.disconnect();
+    _humidityWebsocketURL.disconnect();
   }
 
   @override
@@ -139,6 +173,7 @@ class _HomePageState extends State<HomePage> {
     _videoSocket.disconnect();
     _pressureWebsocketURL.disconnect();
     _temperatureWebsocketURL.disconnect();
+    _humidityWebsocketURL.disconnect();
 
     if (mounted) {
       super.dispose();
@@ -255,36 +290,10 @@ class _HomePageState extends State<HomePage> {
               Column(
                 children: [
                   SizedBox(height: height * 0.03),
-                  StreamBuilder(
-                    stream: _pressureWebsocketURL.stream,
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return const Center(
-                          child: CircularProgressIndicator(),
-                        );
-                      }
-                      if (snapshot.connectionState == ConnectionState.active &&
-                          snapshot.hasData) {
-                        return SizedBox(
-                          width: width * 0.2,
-                          height: height * 0.25,
-                          child: CustomLineChart(getValues(
-                              update(convert(snapshot.data), pressureData))),
-                        );
-                      }
-                      if (snapshot.connectionState == ConnectionState.done) {
-                        return SizedBox(
-                          width: width * 0.2,
-                          height: height * 0.25,
-                          child: CustomLineChart(getValues(pressureData)),
-                        );
-                      }
-                      return SizedBox(
-                        width: width * 0.2,
-                        height: height * 0.25,
-                        child: CustomLineChart(getValues(pressureData)),
-                      );
-                    },
+                  Container(
+                    width: width * 0.2,
+                    height: height * 0.25,
+                    color: Colors.blue,
                   ),
                   SizedBox(height: height * 0.008),
                   Container(
@@ -354,35 +363,114 @@ class _HomePageState extends State<HomePage> {
                         return SizedBox(
                           width: width * 0.2,
                           height: height * 0.25,
-                          child: CustomLineChart(getValues(
-                              update(convert(snapshot.data), temperatureData))),
+                          child: CustomLineChart(
+                            getValues(update(
+                                convert(snapshot.data), temperatureData)),
+                            title: 'Température (°C)',
+                          ),
                         );
                       }
                       if (snapshot.connectionState == ConnectionState.done) {
                         return SizedBox(
                           width: width * 0.2,
                           height: height * 0.25,
-                          child: CustomLineChart(getValues(temperatureData)),
+                          child: CustomLineChart(
+                            getValues(temperatureData),
+                            title: 'Température (°C)',
+                          ),
                         );
                       }
                       return SizedBox(
                         width: width * 0.2,
                         height: height * 0.25,
-                        child: CustomLineChart(getValues(temperatureData)),
+                        child: CustomLineChart(
+                          getValues(temperatureData),
+                          title: 'Température (°C)',
+                        ),
                       );
                     },
                   ),
                   SizedBox(height: height * 0.008),
-                  Container(
-                    width: width * 0.2,
-                    height: height * 0.25,
-                    color: Colors.orange,
+                  StreamBuilder(
+                    stream: _pressureWebsocketURL.stream,
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Center(
+                          child: CircularProgressIndicator(),
+                        );
+                      }
+                      if (snapshot.connectionState == ConnectionState.active &&
+                          snapshot.hasData) {
+                        return SizedBox(
+                          width: width * 0.2,
+                          height: height * 0.25,
+                          child: CustomLineChart(
+                            getValues(
+                                update(convert(snapshot.data), pressureData)),
+                            title: 'Pression (P)',
+                          ),
+                        );
+                      }
+                      if (snapshot.connectionState == ConnectionState.done) {
+                        return SizedBox(
+                          width: width * 0.2,
+                          height: height * 0.25,
+                          child: CustomLineChart(
+                            getValues(pressureData),
+                            title: 'Pression (P)',
+                          ),
+                        );
+                      }
+                      return SizedBox(
+                        width: width * 0.2,
+                        height: height * 0.25,
+                        child: CustomLineChart(
+                          getValues(pressureData),
+                          title: 'Pression (P)',
+                        ),
+                      );
+                    },
                   ),
                   SizedBox(height: height * 0.008),
-                  Container(
-                    width: width * 0.2,
-                    height: height * 0.25,
-                    color: Colors.green,
+                  StreamBuilder(
+                    stream: _humidityWebsocketURL.stream,
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Center(
+                          child: CircularProgressIndicator(),
+                        );
+                      }
+                      if (snapshot.connectionState == ConnectionState.active &&
+                          snapshot.hasData) {
+                        return SizedBox(
+                          width: width * 0.2,
+                          height: height * 0.25,
+                          child: CustomLineChart(
+                            getValues(
+                                update(convert(snapshot.data), humidityData)),
+                            title: 'Humidité (%)',
+                          ),
+                        );
+                      }
+                      if (snapshot.connectionState == ConnectionState.done) {
+                        return SizedBox(
+                          width: width * 0.2,
+                          height: height * 0.25,
+                          child: CustomLineChart(
+                            getValues(humidityData),
+                            title: 'Humidité (%)',
+                          ),
+                        );
+                      }
+                      return SizedBox(
+                        width: width * 0.2,
+                        height: height * 0.25,
+                        child: CustomLineChart(
+                          getValues(humidityData),
+                          title: 'Humidité (%)',
+                        ),
+                      );
+                    },
                   ),
                 ],
               ),
