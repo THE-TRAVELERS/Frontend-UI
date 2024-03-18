@@ -19,26 +19,30 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  // VIDEO
   final CustomWebSocket _videoSocket =
       CustomWebSocket(Constants.videoWebsocketURL);
-  final CustomWebSocket _pressionWebsocketURL =
-      CustomWebSocket(Constants.websocketURL_1);
-  final CustomWebSocket _temperatureWebsocketURL =
-      CustomWebSocket(Constants.websocketURL_2);
-
   bool isVideoToggled = false;
-  bool isChartToggled = false;
-  bool isConnectedToController = false;
-  String? wifiName;
 
-  List<double> data = [];
+  // PRESSURE
+  final CustomWebSocket _pressureWebsocketURL =
+      CustomWebSocket(Constants.pressureURL);
+  bool isPressureServerConnected = false;
+  List<double> pressureData = [];
+  Timer? pressureTimer;
 
-  Timer? _timer;
+  // TEMPERATURE
+  final CustomWebSocket _temperatureWebsocketURL =
+      CustomWebSocket(Constants.temperatureURL);
+  bool isTemperatureServerConnected = false;
+  List<double> temperatureData = [];
+  Timer? temperatureTimer;
 
   @override
   void initState() {
     super.initState();
-    routine();
+    pressureRoutine();
+    temperatureRoutine();
   }
 
   void toggleStreaming({bool quit = false}) {
@@ -61,15 +65,41 @@ class _HomePageState extends State<HomePage> {
     isVideoToggled ? _videoSocket.connect() : _videoSocket.disconnect();
   }
 
-  void routine() async {
-    _timer = Timer.periodic(const Duration(seconds: 10), (timer) async {
-      if (_pressionWebsocketURL.getChannel == null ||
-          _pressionWebsocketURL.getChannel!.closeCode != null) {
-        bool isConnected = await _pressionWebsocketURL.connect();
-        setState(() {
-          isConnectedToController = isConnected;
-        });
+  void pressureRoutine() async {
+    pressureTimer = Timer.periodic(const Duration(seconds: 10), (timer) async {
+      if (_pressureWebsocketURL.getChannel == null ||
+          _pressureWebsocketURL.getChannel!.closeCode != null) {
+        bool isConnected = await _pressureWebsocketURL.connect();
+        if (isConnected != isPressureServerConnected) {
+          setState(() {
+            isPressureServerConnected = isConnected;
+          });
+        }
         if (!isConnected) {
+          // ignore: use_build_context_synchronously
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+            content: Text(
+              'Veuillez déployer le serveur websocket de l\'ordinateur de bord.',
+            ),
+            duration: Duration(seconds: 3),
+          ));
+        }
+      }
+    });
+  }
+
+  void temperatureRoutine() async {
+    temperatureTimer =
+        Timer.periodic(const Duration(seconds: 10), (timer) async {
+      if (_temperatureWebsocketURL.getChannel == null ||
+          _temperatureWebsocketURL.getChannel!.closeCode != null) {
+        bool isConnected = await _temperatureWebsocketURL.connect();
+        if (isConnected != isTemperatureServerConnected) {
+          setState(() {
+            isTemperatureServerConnected = isConnected;
+          });
+        }
+        if (!isTemperatureServerConnected) {
           // ignore: use_build_context_synchronously
           ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
             content: Text(
@@ -85,29 +115,29 @@ class _HomePageState extends State<HomePage> {
   void toggleConnectionToController({bool quit = false}) {
     setState(() {
       if (quit) {
-        isConnectedToController = false;
+        isPressureServerConnected = false;
       } else {
-        isConnectedToController = !isConnectedToController;
+        isPressureServerConnected = !isPressureServerConnected;
       }
     });
   }
 
   void closeAllWebsockets() {
-    _timer?.cancel();
+    pressureTimer?.cancel();
+    temperatureTimer?.cancel();
 
-
-    // _videoSocket.disconnect();
-    _pressionWebsocketURL.disconnect();
-    // _temperatureWebsocketURL.disconnect();
-
+    _videoSocket.disconnect();
+    _pressureWebsocketURL.disconnect();
+    _temperatureWebsocketURL.disconnect();
   }
 
   @override
   void dispose() {
-    _timer?.cancel();
-    
+    pressureTimer?.cancel();
+    temperatureTimer?.cancel();
+
     _videoSocket.disconnect();
-    _pressionWebsocketURL.disconnect();
+    _pressureWebsocketURL.disconnect();
     _temperatureWebsocketURL.disconnect();
 
     if (mounted) {
@@ -196,6 +226,11 @@ class _HomePageState extends State<HomePage> {
             ),
             const Divider(),
             ListTile(
+              leading: const Icon(Icons.close),
+              title: const Text('Close all WebSockets'),
+              onTap: () => closeAllWebsockets(),
+            ),
+            ListTile(
               leading: const Icon(Icons.logout),
               title: const Text('Déconnexion'),
               onTap: () {
@@ -207,13 +242,6 @@ class _HomePageState extends State<HomePage> {
                     builder: (context) => AuthPage(),
                   ),
                 );
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.close),
-              title: const Text('Close all WebSockets'),
-              onTap: () {
-                closeAllWebsockets();
               },
             ),
           ],
@@ -228,7 +256,7 @@ class _HomePageState extends State<HomePage> {
                 children: [
                   SizedBox(height: height * 0.03),
                   StreamBuilder(
-                    stream: _pressionWebsocketURL.stream,
+                    stream: _pressureWebsocketURL.stream,
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
                         return const Center(
@@ -240,21 +268,21 @@ class _HomePageState extends State<HomePage> {
                         return SizedBox(
                           width: width * 0.2,
                           height: height * 0.25,
-                          child: CustomLineChart(
-                              getValues(update(convert(snapshot.data), data))),
+                          child: CustomLineChart(getValues(
+                              update(convert(snapshot.data), pressureData))),
                         );
                       }
                       if (snapshot.connectionState == ConnectionState.done) {
                         return SizedBox(
                           width: width * 0.2,
                           height: height * 0.25,
-                          child: CustomLineChart(getValues(data)),
+                          child: CustomLineChart(getValues(pressureData)),
                         );
                       }
                       return SizedBox(
                         width: width * 0.2,
                         height: height * 0.25,
-                        child: CustomLineChart(getValues(data)),
+                        child: CustomLineChart(getValues(pressureData)),
                       );
                     },
                   ),
@@ -313,10 +341,36 @@ class _HomePageState extends State<HomePage> {
               Column(
                 children: [
                   SizedBox(height: height * 0.03),
-                  Container(
-                    width: width * 0.2,
-                    height: height * 0.25,
-                    color: Colors.blue,
+                  StreamBuilder(
+                    stream: _temperatureWebsocketURL.stream,
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Center(
+                          child: CircularProgressIndicator(),
+                        );
+                      }
+                      if (snapshot.connectionState == ConnectionState.active &&
+                          snapshot.hasData) {
+                        return SizedBox(
+                          width: width * 0.2,
+                          height: height * 0.25,
+                          child: CustomLineChart(getValues(
+                              update(convert(snapshot.data), temperatureData))),
+                        );
+                      }
+                      if (snapshot.connectionState == ConnectionState.done) {
+                        return SizedBox(
+                          width: width * 0.2,
+                          height: height * 0.25,
+                          child: CustomLineChart(getValues(temperatureData)),
+                        );
+                      }
+                      return SizedBox(
+                        width: width * 0.2,
+                        height: height * 0.25,
+                        child: CustomLineChart(getValues(temperatureData)),
+                      );
+                    },
                   ),
                   SizedBox(height: height * 0.008),
                   Container(

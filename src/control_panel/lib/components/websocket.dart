@@ -8,7 +8,6 @@ class CustomWebSocket {
   // ------------------------- Members ------------------------- //
   late String url;
   WebSocketChannel? _channel;
-  StreamController<bool> streamController = StreamController<bool>.broadcast();
 
   // --------------------- Constructor ---------------------- //
   CustomWebSocket(this.url);
@@ -41,10 +40,8 @@ class CustomWebSocket {
     try {
       _channel = WebSocketChannel.connect(Uri.parse(url));
       await _channel?.ready;
-      streamController.add(true);
       return true;
     } catch (e) {
-      streamController.add(false);
       return false;
     }
   }
@@ -54,7 +51,6 @@ class CustomWebSocket {
     if (_channel != null) {
       try {
         _channel!.sink.close();
-        streamController.add(false);
       } catch (e) {
         if (kDebugMode) {
           print('Failed to close WebSocket: $e');
