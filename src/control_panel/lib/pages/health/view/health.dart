@@ -5,7 +5,7 @@ import 'package:control_panel/pages/sensors/view/sensors.dart';
 import 'package:flutter/material.dart';
 
 class HealthPage extends StatefulWidget {
-  const HealthPage({Key? key}) : super(key: key);
+  const HealthPage({super.key});
 
   @override
   State<HealthPage> createState() => _HealthPageState();

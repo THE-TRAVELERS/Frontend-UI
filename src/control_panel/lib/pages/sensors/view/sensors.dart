@@ -5,7 +5,7 @@ import 'package:control_panel/pages/home/view/home.dart';
 import 'package:flutter/material.dart';
 
 class SensorsPage extends StatefulWidget {
-  const SensorsPage({Key? key}) : super(key: key);
+  const SensorsPage({super.key});
 
   @override
   State<SensorsPage> createState() => _SensorsPageState();
