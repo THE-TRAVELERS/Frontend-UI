@@ -12,7 +12,6 @@ import 'package:control_panel/pages/home/logic/controller.dart';
 import 'package:control_panel/pages/sensors/view/sensors.dart';
 import 'package:flutter/material.dart';
 
-/// Defines the home page of the application with the video flux and the controls
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
@@ -87,7 +86,8 @@ class _HomePageState extends State<HomePage> {
           // ignore: use_build_context_synchronously
           ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
             content: Text(
-              'Veuillez déployer le serveur websocket de l\'ordinateur de bord.',
+              'Veuillez déployer le'
+              ' serveur websocket de l\'ordinateur de bord.',
             ),
             duration: Duration(seconds: 3),
           ));
@@ -110,7 +110,8 @@ class _HomePageState extends State<HomePage> {
           // ignore: use_build_context_synchronously
           ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
             content: Text(
-              'Veuillez déployer le serveur websocket de l\'ordinateur de bord.',
+              'Veuillez déployer le'
+              ' serveur websocket de l\'ordinateur de bord.',
             ),
             duration: Duration(seconds: 3),
           ));
@@ -134,7 +135,8 @@ class _HomePageState extends State<HomePage> {
           // ignore: use_build_context_synchronously
           ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
             content: Text(
-              'Veuillez déployer le serveur websocket de l\'ordinateur de bord.',
+              'Veuillez déployer le'
+              ' serveur websocket de l\'ordinateur de bord.',
             ),
             duration: Duration(seconds: 3),
           ));
@@ -157,7 +159,8 @@ class _HomePageState extends State<HomePage> {
           // ignore: use_build_context_synchronously
           ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
             content: Text(
-              'Veuillez déployer le serveur websocket de l\'ordinateur de bord.',
+              'Veuillez déployer le'
+              ' serveur websocket de l\'ordinateur de bord.',
             ),
             duration: Duration(seconds: 3),
           ));
@@ -226,7 +229,7 @@ class _HomePageState extends State<HomePage> {
                   style: TextStyle(color: Colors.white, fontSize: 20),
                 ),
                 Text(
-                  NetworkStatus.online ? "connecté" : "aucun",
+                  NetworkStatus.online ? 'connecté' : 'aucun',
                   style: TextStyle(
                     color: NetworkStatus.online
                         ? const Color.fromARGB(255, 105, 203, 109)

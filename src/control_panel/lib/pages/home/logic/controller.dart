@@ -3,14 +3,12 @@ import 'dart:html' as html;
 
 import 'package:collection/collection.dart';
 
-/// Class responsible for handling the network status.
+/// This class returns the current network status (online/offline) as a boolean value.
 class NetworkStatus {
   static bool get online => html.window.navigator.onLine ?? false;
 }
 
 /// Represents a point on a chart with X and Y coordinates.
-///
-/// The `x` property represents the X coordinate and the `y` property represents the Y coordinate.
 class ChartPoint {
   final double x;
   final double y;
@@ -18,9 +16,7 @@ class ChartPoint {
 }
 
 /// Converts a list of double values into a list of `ChartPoint` instances.
-///
-/// Each `ChartPoint`'s X coordinate is the index of the value in the input list (starting from 1),
-/// and the Y coordinate is the value itself.
+/// Where X is the index of the value in the list and Y is the input value.
 List<ChartPoint> getValues(List<double> data) {
   return data
       .mapIndexed((index, element) =>
@@ -28,10 +24,7 @@ List<ChartPoint> getValues(List<double> data) {
       .toList();
 }
 
-/// Updates the list of values.
-///
-/// When a new value is added, it is placed at the end of the list.
-/// The existing values are shifted to the left, and the least recent value is removed.
+/// Updates the list of values. Works as a pile of 10 values.
 List<double> update(value, valuesList) {
   double valueMemory1 = 0;
   double valueMemory2 = 0;
@@ -56,7 +49,7 @@ List<double> update(value, valuesList) {
   return valuesList;
 }
 
-/// Convert the value in String to double
+/// Convert a String value to double.
 double convert(String value) {
   return double.parse(value);
 }
