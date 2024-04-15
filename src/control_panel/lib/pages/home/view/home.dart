@@ -2,8 +2,8 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
 
+import 'package:control_panel/components/custom_elevatedbutton.dart';
 import 'package:control_panel/components/custom_linechart.dart';
-import 'package:control_panel/components/custom_stateicon.dart';
 import 'package:control_panel/constants/colors.dart';
 import 'package:control_panel/models/charpoint.dart';
 import 'package:control_panel/models/websocket.dart';
@@ -61,12 +61,33 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
+  }
 
+  void startInternalSensors() {}
+  void startExternalSensors() {
     pressureRoutine();
     temperatureRoutine();
     humidityRoutine();
   }
-  
+
+  void stopInternalSensorsTimers() {}
+  void stopExternalSensorsTimers() {
+    pressureTimer?.cancel();
+    temperatureTimer?.cancel();
+    humidityTimer?.cancel();
+  }
+
+  void closeInternalSensorsConnection() {
+    stopInternalSensorsTimers();
+  }
+
+  void closeExternalSensorsConnection() {
+    stopExternalSensorsTimers();
+
+    _pressureWebsocket.disconnect();
+    _temperatureWebsocket.disconnect();
+    _humidityWebsocket.disconnect();
+  }
 
   void toggleStreaming({bool quit = false}) {
     setState(() {
@@ -81,6 +102,23 @@ class _HomePageState extends State<HomePage> {
     } else {
       videoTimer?.cancel();
       _videoWebsocket.disconnect();
+    }
+  }
+
+  void toggleInternal({bool quit = false}) {}
+
+  void toggleExternal({bool quit = false}) {
+    setState(() {
+      if (quit) {
+        isExternalSensorsToggled = false;
+      } else {
+        isExternalSensorsToggled = !isExternalSensorsToggled;
+      }
+    });
+    if (isExternalSensorsToggled) {
+      startExternalSensors();
+    } else {
+      closeExternalSensorsConnection();
     }
   }
 
@@ -105,6 +143,7 @@ class _HomePageState extends State<HomePage> {
         ));
       }
     }
+    setState(() {});
   }
 
   void videoRoutine() async {
@@ -142,26 +181,12 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  void toggleConnectionToController({bool quit = false}) {
-    setState(() {
-      if (quit) {
-        isPressureServerConnected = false;
-      } else {
-        isPressureServerConnected = !isPressureServerConnected;
-      }
-    });
-  }
-
   void closeAllWebsockets() {
     videoTimer?.cancel();
-    pressureTimer?.cancel();
-    temperatureTimer?.cancel();
-    humidityTimer?.cancel();
-
     _videoWebsocket.disconnect();
-    _pressureWebsocket.disconnect();
-    _temperatureWebsocket.disconnect();
-    _humidityWebsocket.disconnect();
+
+    closeExternalSensorsConnection();
+    closeInternalSensorsConnection();
   }
 
   @override
@@ -264,7 +289,6 @@ class _HomePageState extends State<HomePage> {
               title: const Text('Déconnexion'),
               onTap: () {
                 toggleStreaming(quit: true);
-                toggleConnectionToController(quit: true);
                 Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(
@@ -359,22 +383,31 @@ class _HomePageState extends State<HomePage> {
                     ),
                     SizedBox(height: height * 0.03),
                     IntrinsicWidth(
-                      child: ElevatedButton(
-                        onPressed: () => toggleStreaming(),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              isVideoToggled
-                                  ? 'Arrêter le flux vidéo'
-                                  : 'Démarrer le flux vidéo',
-                              style: const TextStyle(fontSize: 20),
-                            ),
-                            const SizedBox(width: 10),
-                            StateIcon(isOn: isVideoToggled),
-                          ],
-                        ),
+                      child: CustomElevatedButton(
+                        onPressed: toggleStreaming,
+                        isToggled: isVideoToggled,
+                        startText: 'Démarrer le flux vidéo',
+                        stopText: 'Arrêter le flux vidéo',
                       ),
+                    ),
+                    SizedBox(height: height * 0.03),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        CustomElevatedButton(
+                          onPressed: toggleInternal,
+                          isToggled: isInternalSensorsConnected,
+                          startText: 'Démarrer les capteurs internes',
+                          stopText: 'Arrêter les capteurs internes',
+                        ),
+                        SizedBox(width: width * 0.01),
+                        CustomElevatedButton(
+                          onPressed: toggleExternal,
+                          isToggled: isExternalSensorsToggled,
+                          startText: 'Démarrer les capteurs externes',
+                          stopText: 'Arrêter les capteurs externes',
+                        ),
+                      ],
                     ),
                   ],
                 ),
@@ -398,16 +431,6 @@ class _HomePageState extends State<HomePage> {
                           child: CustomLineChart(
                             getValues(update(
                                 convert(snapshot.data), temperatureData)),
-                            title: temperatureTitle,
-                          ),
-                        );
-                      }
-                      if (snapshot.connectionState == ConnectionState.done) {
-                        return SizedBox(
-                          width: width * 0.2,
-                          height: height * 0.25,
-                          child: CustomLineChart(
-                            getValues(temperatureData),
                             title: temperatureTitle,
                           ),
                         );
@@ -443,16 +466,6 @@ class _HomePageState extends State<HomePage> {
                           ),
                         );
                       }
-                      if (snapshot.connectionState == ConnectionState.done) {
-                        return SizedBox(
-                          width: width * 0.2,
-                          height: height * 0.25,
-                          child: CustomLineChart(
-                            getValues(pressureData),
-                            title: pressureTitle,
-                          ),
-                        );
-                      }
                       return SizedBox(
                         width: width * 0.2,
                         height: height * 0.25,
@@ -480,16 +493,6 @@ class _HomePageState extends State<HomePage> {
                           child: CustomLineChart(
                             getValues(
                                 update(convert(snapshot.data), humidityData)),
-                            title: humidityTitle,
-                          ),
-                        );
-                      }
-                      if (snapshot.connectionState == ConnectionState.done) {
-                        return SizedBox(
-                          width: width * 0.2,
-                          height: height * 0.25,
-                          child: CustomLineChart(
-                            getValues(humidityData),
                             title: humidityTitle,
                           ),
                         );
