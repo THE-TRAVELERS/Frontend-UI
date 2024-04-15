@@ -214,6 +214,7 @@ class _HomePageState extends State<HomePage> {
     final width = MediaQuery.of(context).size.width;
     return Scaffold(
       appBar: AppBar(
+        iconTheme: IconThemeData(color: ProjectColors.white),
         backgroundColor: ProjectColors.primary,
         title: Image.asset(
           Paths.highCenteredLogo,
