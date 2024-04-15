@@ -1,4 +1,8 @@
 # This file is used to ignore files and directories in the project from pushing to the repository
 
-# Ignoring web build directory
-web
+# Ignoring all pre-build directories except web (target for this project)
+linux
+ios
+macos
+windows
+android
