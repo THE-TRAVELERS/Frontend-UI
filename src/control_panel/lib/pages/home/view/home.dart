@@ -24,20 +24,23 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   // VIDEO
-  final CustomWebSocket _videoSocket = CustomWebSocket(URLS.videoWebsocket);
+  final CustomWebSocket _videoWebsocket = CustomWebSocket(URLS.video);
   bool isVideoToggled = false;
   Timer? videoTimer;
 
+  // ---------- ---------- External Sensors ---------- ---------- //
+  bool isExternalSensorsToggled = false;
+
   // PRESSURE
   final String pressureTitle = 'Pression extérieure (Pa)';
-  final CustomWebSocket _pressureWebsocketURL = CustomWebSocket(URLS.pressure);
+  final CustomWebSocket _pressureWebsocket = CustomWebSocket(URLS.pressure);
   bool isPressureServerConnected = false;
   List<double> pressureData = [];
   Timer? pressureTimer;
 
   // TEMPERATURE
   final String temperatureTitle = 'Température extérieure (°C)';
-  final CustomWebSocket _temperatureWebsocketURL =
+  final CustomWebSocket _temperatureWebsocket =
       CustomWebSocket(URLS.temperature);
   bool isTemperatureServerConnected = false;
   List<double> temperatureData = [];
@@ -45,10 +48,15 @@ class _HomePageState extends State<HomePage> {
 
   // HUMIDITY
   final String humidityTitle = 'Humidité extérieure (%)';
-  final CustomWebSocket _humidityWebsocketURL = CustomWebSocket(URLS.humidity);
+  final CustomWebSocket _humidityWebsocket = CustomWebSocket(URLS.humidity);
   bool isHumidityServerConnected = false;
   List<double> humidityData = [];
   Timer? humidityTimer;
+  // ---------- ---------- External Sensors ---------- ---------- //
+
+  // ---------- ---------- Internal Sensors ---------- ---------- //
+  bool isInternalSensorsConnected = false;
+  // ---------- ---------- Internal Sensors ---------- ---------- //
 
   @override
   void initState() {
@@ -58,6 +66,7 @@ class _HomePageState extends State<HomePage> {
     temperatureRoutine();
     humidityRoutine();
   }
+  
 
   void toggleStreaming({bool quit = false}) {
     setState(() {
@@ -71,105 +80,66 @@ class _HomePageState extends State<HomePage> {
       videoRoutine();
     } else {
       videoTimer?.cancel();
-      _videoSocket.disconnect();
+      _videoWebsocket.disconnect();
+    }
+  }
+
+  void routine(Timer timer, CustomWebSocket websocketURL, bool isConnected,
+      Function setIsConnected) async {
+    if (websocketURL.getChannel == null ||
+        websocketURL.getChannel!.closeCode != null) {
+      bool connectionStatus = await websocketURL.connect();
+      if (connectionStatus != isConnected) {
+        setState(() {
+          setIsConnected(connectionStatus);
+        });
+      }
+      if (!connectionStatus) {
+        // ignore: use_build_context_synchronously
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text(
+            'Veuillez déployer le'
+            ' serveur websocket de l\'ordinateur de bord.',
+          ),
+          duration: Duration(seconds: 3),
+        ));
+      }
     }
   }
 
   void videoRoutine() async {
-    videoTimer = Timer.periodic(const Duration(seconds: 10), (timer) async {
-      if (_videoSocket.getChannel == null ||
-          _videoSocket.getChannel!.closeCode != null) {
-        bool isConnected = await _videoSocket.connect();
-        if (isConnected != isVideoToggled) {
-          setState(() {
-            isVideoToggled = isConnected;
-          });
-        }
-        if (!isVideoToggled) {
-          // ignore: use_build_context_synchronously
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-            content: Text(
-              'Veuillez déployer le'
-              ' serveur websocket de l\'ordinateur de bord.',
-            ),
-            duration: Duration(seconds: 3),
-          ));
-        }
-      }
-    });
+    videoTimer = Timer.periodic(
+      const Duration(seconds: 10),
+      (timer) => routine(timer, _videoWebsocket, isVideoToggled,
+          (value) => isVideoToggled = value),
+    );
   }
 
   void pressureRoutine() async {
-    pressureTimer = Timer.periodic(const Duration(seconds: 10), (timer) async {
-      if (_pressureWebsocketURL.getChannel == null ||
-          _pressureWebsocketURL.getChannel!.closeCode != null) {
-        bool isConnected = await _pressureWebsocketURL.connect();
-        if (isConnected != isPressureServerConnected) {
-          setState(() {
-            isPressureServerConnected = isConnected;
-          });
-        }
-        if (!isConnected) {
-          // ignore: use_build_context_synchronously
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-            content: Text(
-              'Veuillez déployer le'
-              ' serveur websocket de l\'ordinateur de bord.',
-            ),
-            duration: Duration(seconds: 3),
-          ));
-        }
-      }
-    });
+    pressureTimer = Timer.periodic(
+      const Duration(seconds: 10),
+      (timer) => routine(timer, _pressureWebsocket, isPressureServerConnected,
+          (value) => isPressureServerConnected = value),
+    );
   }
 
   void temperatureRoutine() async {
-    temperatureTimer =
-        Timer.periodic(const Duration(seconds: 10), (timer) async {
-      if (_temperatureWebsocketURL.getChannel == null ||
-          _temperatureWebsocketURL.getChannel!.closeCode != null) {
-        bool isConnected = await _temperatureWebsocketURL.connect();
-        if (isConnected != isTemperatureServerConnected) {
-          setState(() {
-            isTemperatureServerConnected = isConnected;
-          });
-        }
-        if (!isTemperatureServerConnected) {
-          // ignore: use_build_context_synchronously
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-            content: Text(
-              'Veuillez déployer le'
-              ' serveur websocket de l\'ordinateur de bord.',
-            ),
-            duration: Duration(seconds: 3),
-          ));
-        }
-      }
-    });
+    temperatureTimer = Timer.periodic(
+      const Duration(seconds: 10),
+      (timer) => routine(
+          timer,
+          _temperatureWebsocket,
+          isTemperatureServerConnected,
+          (value) => isTemperatureServerConnected = value),
+    );
   }
 
   void humidityRoutine() async {
-    humidityTimer = Timer.periodic(const Duration(seconds: 10), (timer) async {
-      if (_humidityWebsocketURL.getChannel == null ||
-          _humidityWebsocketURL.getChannel!.closeCode != null) {
-        bool isConnected = await _humidityWebsocketURL.connect();
-        if (isConnected != isHumidityServerConnected) {
-          setState(() {
-            isHumidityServerConnected = isConnected;
-          });
-        }
-        if (!isHumidityServerConnected) {
-          // ignore: use_build_context_synchronously
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-            content: Text(
-              'Veuillez déployer le'
-              ' serveur websocket de l\'ordinateur de bord.',
-            ),
-            duration: Duration(seconds: 3),
-          ));
-        }
-      }
-    });
+    humidityTimer = Timer.periodic(
+      const Duration(seconds: 10),
+      (timer) => routine(timer, _humidityWebsocket, isHumidityServerConnected,
+          (value) => isHumidityServerConnected = value),
+    );
   }
 
   void toggleConnectionToController({bool quit = false}) {
@@ -188,23 +158,15 @@ class _HomePageState extends State<HomePage> {
     temperatureTimer?.cancel();
     humidityTimer?.cancel();
 
-    _videoSocket.disconnect();
-    _pressureWebsocketURL.disconnect();
-    _temperatureWebsocketURL.disconnect();
-    _humidityWebsocketURL.disconnect();
+    _videoWebsocket.disconnect();
+    _pressureWebsocket.disconnect();
+    _temperatureWebsocket.disconnect();
+    _humidityWebsocket.disconnect();
   }
 
   @override
   void dispose() {
-    videoTimer?.cancel();
-    pressureTimer?.cancel();
-    temperatureTimer?.cancel();
-    humidityTimer?.cancel();
-
-    _videoSocket.disconnect();
-    _pressureWebsocketURL.disconnect();
-    _temperatureWebsocketURL.disconnect();
-    _humidityWebsocketURL.disconnect();
+    closeAllWebsockets();
 
     if (mounted) {
       super.dispose();
@@ -352,7 +314,7 @@ class _HomePageState extends State<HomePage> {
                       children: [
                         Center(
                             child: StreamBuilder(
-                          stream: _videoSocket.stream,
+                          stream: _videoWebsocket.stream,
                           builder: (context, snapshot) {
                             if (snapshot.connectionState ==
                                     ConnectionState.waiting &&
@@ -421,7 +383,7 @@ class _HomePageState extends State<HomePage> {
                 children: [
                   SizedBox(height: height * 0.03),
                   StreamBuilder(
-                    stream: _temperatureWebsocketURL.stream,
+                    stream: _temperatureWebsocket.stream,
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
                         return const Center(
@@ -462,7 +424,7 @@ class _HomePageState extends State<HomePage> {
                   ),
                   SizedBox(height: height * 0.008),
                   StreamBuilder(
-                    stream: _pressureWebsocketURL.stream,
+                    stream: _pressureWebsocket.stream,
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
                         return const Center(
@@ -503,7 +465,7 @@ class _HomePageState extends State<HomePage> {
                   ),
                   SizedBox(height: height * 0.008),
                   StreamBuilder(
-                    stream: _humidityWebsocketURL.stream,
+                    stream: _humidityWebsocket.stream,
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
                         return const Center(
