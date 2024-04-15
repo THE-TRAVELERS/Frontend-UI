@@ -29,7 +29,7 @@ class _HealthPageState extends State<HealthPage> {
     return Scaffold(
       appBar: AppBar(
         title: Image.asset(
-          Constants.pathToHighCenteredLogo,
+          Paths.highCenteredLogo,
           width: 200,
           height: 100,
         ),
@@ -45,7 +45,7 @@ class _HealthPageState extends State<HealthPage> {
               currentAccountPicture: CircleAvatar(
                 child: ClipOval(
                   child: Image.asset(
-                    Constants.pathToProfilePicture,
+                    Paths.profilePicture,
                     fit: BoxFit.cover,
                     width: 90,
                     height: 90,

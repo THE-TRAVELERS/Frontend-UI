@@ -21,28 +21,27 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   // VIDEO
-  final CustomWebSocket _videoSocket =
-      CustomWebSocket(Constants.videoWebsocketURL);
+  final CustomWebSocket _videoSocket = CustomWebSocket(URLS.videoWebsocket);
   bool isVideoToggled = false;
   Timer? videoTimer;
 
   // PRESSURE
   final CustomWebSocket _pressureWebsocketURL =
-      CustomWebSocket(Constants.pressureURL);
+      CustomWebSocket(URLS.pressure);
   bool isPressureServerConnected = false;
   List<double> pressureData = [];
   Timer? pressureTimer;
 
   // TEMPERATURE
   final CustomWebSocket _temperatureWebsocketURL =
-      CustomWebSocket(Constants.temperatureURL);
+      CustomWebSocket(URLS.temperature);
   bool isTemperatureServerConnected = false;
   List<double> temperatureData = [];
   Timer? temperatureTimer;
 
   // HUMIDITY
   final CustomWebSocket _humidityWebsocketURL =
-      CustomWebSocket(Constants.humidityURL);
+      CustomWebSocket(URLS.humidity);
   bool isHumidityServerConnected = false;
   List<double> humidityData = [];
   Timer? humidityTimer;
@@ -216,7 +215,7 @@ class _HomePageState extends State<HomePage> {
       appBar: AppBar(
         backgroundColor: const Color(0xFF1331F5),
         title: Image.asset(
-          Constants.pathToHighCenteredLogo,
+          Paths.highCenteredLogo,
           width: 220,
           height: 100,
         ),
@@ -253,7 +252,7 @@ class _HomePageState extends State<HomePage> {
               currentAccountPicture: CircleAvatar(
                 child: ClipOval(
                   child: Image.asset(
-                    Constants.pathToProfilePicture,
+                    Paths.profilePicture,
                     fit: BoxFit.cover,
                     width: 90,
                     height: 90,
@@ -383,7 +382,7 @@ class _HomePageState extends State<HomePage> {
                             return SizedBox(
                               width: 640,
                               height: 480,
-                              child: Image.asset(Constants.pathToNoImages),
+                              child: Image.asset(Paths.noImages),
                             );
                           },
                         ))
