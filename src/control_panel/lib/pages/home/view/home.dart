@@ -29,12 +29,14 @@ class _HomePageState extends State<HomePage> {
   Timer? videoTimer;
 
   // PRESSURE
+  final String pressureTitle = 'Pression extérieure (Pa)';
   final CustomWebSocket _pressureWebsocketURL = CustomWebSocket(URLS.pressure);
   bool isPressureServerConnected = false;
   List<double> pressureData = [];
   Timer? pressureTimer;
 
   // TEMPERATURE
+  final String temperatureTitle = 'Température extérieure (°C)';
   final CustomWebSocket _temperatureWebsocketURL =
       CustomWebSocket(URLS.temperature);
   bool isTemperatureServerConnected = false;
@@ -42,6 +44,7 @@ class _HomePageState extends State<HomePage> {
   Timer? temperatureTimer;
 
   // HUMIDITY
+  final String humidityTitle = 'Humidité extérieure (%)';
   final CustomWebSocket _humidityWebsocketURL = CustomWebSocket(URLS.humidity);
   bool isHumidityServerConnected = false;
   List<double> humidityData = [];
@@ -433,7 +436,7 @@ class _HomePageState extends State<HomePage> {
                           child: CustomLineChart(
                             getValues(update(
                                 convert(snapshot.data), temperatureData)),
-                            title: 'Température (°C)',
+                            title: temperatureTitle,
                           ),
                         );
                       }
@@ -443,7 +446,7 @@ class _HomePageState extends State<HomePage> {
                           height: height * 0.25,
                           child: CustomLineChart(
                             getValues(temperatureData),
-                            title: 'Température (°C)',
+                            title: temperatureTitle,
                           ),
                         );
                       }
@@ -452,7 +455,7 @@ class _HomePageState extends State<HomePage> {
                         height: height * 0.25,
                         child: CustomLineChart(
                           getValues(temperatureData),
-                          title: 'Température (°C)',
+                          title: temperatureTitle,
                         ),
                       );
                     },
@@ -474,7 +477,7 @@ class _HomePageState extends State<HomePage> {
                           child: CustomLineChart(
                             getValues(
                                 update(convert(snapshot.data), pressureData)),
-                            title: 'Pression (P)',
+                            title: pressureTitle,
                           ),
                         );
                       }
@@ -484,7 +487,7 @@ class _HomePageState extends State<HomePage> {
                           height: height * 0.25,
                           child: CustomLineChart(
                             getValues(pressureData),
-                            title: 'Pression (P)',
+                            title: pressureTitle,
                           ),
                         );
                       }
@@ -493,7 +496,7 @@ class _HomePageState extends State<HomePage> {
                         height: height * 0.25,
                         child: CustomLineChart(
                           getValues(pressureData),
-                          title: 'Pression (P)',
+                          title: pressureTitle,
                         ),
                       );
                     },
@@ -515,7 +518,7 @@ class _HomePageState extends State<HomePage> {
                           child: CustomLineChart(
                             getValues(
                                 update(convert(snapshot.data), humidityData)),
-                            title: 'Humidité (%)',
+                            title: humidityTitle,
                           ),
                         );
                       }
@@ -525,7 +528,7 @@ class _HomePageState extends State<HomePage> {
                           height: height * 0.25,
                           child: CustomLineChart(
                             getValues(humidityData),
-                            title: 'Humidité (%)',
+                            title: humidityTitle,
                           ),
                         );
                       }
@@ -534,7 +537,7 @@ class _HomePageState extends State<HomePage> {
                         height: height * 0.25,
                         child: CustomLineChart(
                           getValues(humidityData),
-                          title: 'Humidité (%)',
+                          title: humidityTitle,
                         ),
                       );
                     },
