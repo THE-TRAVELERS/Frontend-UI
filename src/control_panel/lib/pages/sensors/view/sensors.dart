@@ -1,3 +1,4 @@
+import 'package:control_panel/constants/colors.dart';
 import 'package:control_panel/constants/paths.dart';
 import 'package:control_panel/pages/auth/view/auth.dart';
 import 'package:control_panel/pages/health/view/health.dart';
@@ -33,7 +34,7 @@ class _SensorsPageState extends State<SensorsPage> {
           width: 200,
           height: 100,
         ),
-        backgroundColor: const Color(0xFF1331F5),
+        backgroundColor: ProjectColors.primary,
       ),
       drawer: Drawer(
         child: ListView(
@@ -52,17 +53,17 @@ class _SensorsPageState extends State<SensorsPage> {
                   ),
                 ),
               ),
-              decoration: const BoxDecoration(color: Color(0xFF1331F5)),
+              decoration: BoxDecoration(color: ProjectColors.primary),
             ),
             ListTile(
               leading: const Icon(Icons.emergency_recording),
               title: const Text('Acceuil'),
               onTap: () => Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const HomePage(),
-                    ),
-                  ),
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const HomePage(),
+                ),
+              ),
             ),
             ListTile(
               leading: const Icon(Icons.emergency_recording),
@@ -73,11 +74,11 @@ class _SensorsPageState extends State<SensorsPage> {
               leading: const Icon(Icons.control_camera),
               title: const Text('Santé ordinateur de bord'),
               onTap: () => Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const HealthPage(),
-                    ),
-                  ),
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const HealthPage(),
+                ),
+              ),
             ),
             const Divider(),
             ListTile(

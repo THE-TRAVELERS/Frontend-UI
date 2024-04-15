@@ -1,5 +1,6 @@
 import 'package:control_panel/components/custom_button.dart';
 import 'package:control_panel/components/custom_textfield.dart';
+import 'package:control_panel/constants/colors.dart';
 import 'package:control_panel/pages/home/view/home.dart';
 import 'package:flutter/material.dart';
 
@@ -54,7 +55,7 @@ class AuthPage extends StatelessWidget {
                   padding: EdgeInsets.symmetric(horizontal: width * 0.3),
                   child: Divider(
                     thickness: 0.5,
-                    color: Colors.grey[400],
+                    color: ProjectColors.greyLight,
                   ),
                 ),
                 SizedBox(height: height * 0.03),
@@ -80,10 +81,10 @@ class AuthPage extends StatelessWidget {
                           ),
                         ),
                       ),
-                      child: const Text(
+                      child: Text(
                         'Mot de passe oublié ?',
                         style: TextStyle(
-                          color: Color(0xFF0958EF),
+                          color: ProjectColors.primary,
                           decoration: TextDecoration.underline,
                         ),
                       ),
@@ -103,20 +104,20 @@ class AuthPage extends StatelessWidget {
                       Expanded(
                         child: Divider(
                           thickness: 0.5,
-                          color: Colors.grey[400],
+                          color: ProjectColors.greyLight,
                         ),
                       ),
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 10),
                         child: Text(
                           'Nos partenaires',
-                          style: TextStyle(color: Colors.grey[700]),
+                          style: TextStyle(color: ProjectColors.greyDark),
                         ),
                       ),
                       Expanded(
                         child: Divider(
                           thickness: 0.5,
-                          color: Colors.grey[400],
+                          color: ProjectColors.greyLight,
                         ),
                       ),
                     ],

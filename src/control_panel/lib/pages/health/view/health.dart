@@ -1,3 +1,4 @@
+import 'package:control_panel/constants/colors.dart';
 import 'package:control_panel/constants/paths.dart';
 import 'package:control_panel/pages/auth/view/auth.dart';
 import 'package:control_panel/pages/home/view/home.dart';
@@ -33,7 +34,7 @@ class _HealthPageState extends State<HealthPage> {
           width: 200,
           height: 100,
         ),
-        backgroundColor: const Color(0xFF1331F5),
+        backgroundColor: ProjectColors.primary,
       ),
       drawer: Drawer(
         child: ListView(
@@ -52,7 +53,7 @@ class _HealthPageState extends State<HealthPage> {
                   ),
                 ),
               ),
-              decoration: const BoxDecoration(color: Color(0xFF1331F5)),
+              decoration: BoxDecoration(color: ProjectColors.primary),
             ),
             ListTile(
               leading: const Icon(Icons.emergency_recording),

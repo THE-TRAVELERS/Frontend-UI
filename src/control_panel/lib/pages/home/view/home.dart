@@ -4,6 +4,7 @@ import 'dart:typed_data';
 
 import 'package:control_panel/components/custom_linechart.dart';
 import 'package:control_panel/components/custom_stateicon.dart';
+import 'package:control_panel/constants/colors.dart';
 import 'package:control_panel/models/charpoint.dart';
 import 'package:control_panel/models/websocket.dart';
 import 'package:control_panel/constants/paths.dart';
@@ -28,8 +29,7 @@ class _HomePageState extends State<HomePage> {
   Timer? videoTimer;
 
   // PRESSURE
-  final CustomWebSocket _pressureWebsocketURL =
-      CustomWebSocket(URLS.pressure);
+  final CustomWebSocket _pressureWebsocketURL = CustomWebSocket(URLS.pressure);
   bool isPressureServerConnected = false;
   List<double> pressureData = [];
   Timer? pressureTimer;
@@ -42,8 +42,7 @@ class _HomePageState extends State<HomePage> {
   Timer? temperatureTimer;
 
   // HUMIDITY
-  final CustomWebSocket _humidityWebsocketURL =
-      CustomWebSocket(URLS.humidity);
+  final CustomWebSocket _humidityWebsocketURL = CustomWebSocket(URLS.humidity);
   bool isHumidityServerConnected = false;
   List<double> humidityData = [];
   Timer? humidityTimer;
@@ -215,7 +214,7 @@ class _HomePageState extends State<HomePage> {
     final width = MediaQuery.of(context).size.width;
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: const Color(0xFF1331F5),
+        backgroundColor: ProjectColors.primary,
         title: Image.asset(
           Paths.highCenteredLogo,
           width: 220,
@@ -225,16 +224,16 @@ class _HomePageState extends State<HomePage> {
           Center(
             child: Row(
               children: [
-                const Text(
+                Text(
                   'WiFi : ',
-                  style: TextStyle(color: Colors.white, fontSize: 20),
+                  style: TextStyle(color: ProjectColors.white, fontSize: 20),
                 ),
                 Text(
                   NetworkStatus.online ? 'connecté' : 'aucun',
                   style: TextStyle(
                     color: NetworkStatus.online
-                        ? const Color.fromARGB(255, 105, 203, 109)
-                        : const Color.fromARGB(255, 255, 101, 90),
+                        ? ProjectColors.greenValidate
+                        : ProjectColors.redError,
                     fontSize: 20,
                   ),
                 ),
@@ -261,7 +260,7 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ),
               ),
-              decoration: const BoxDecoration(color: Color(0xFF1331F5)),
+              decoration: BoxDecoration(color: ProjectColors.primary),
             ),
             ListTile(
               leading: const Icon(Icons.emergency_recording),
@@ -318,6 +317,7 @@ class _HomePageState extends State<HomePage> {
             children: [
               Column(
                 children: [
+                  // TODO: Replace with charts
                   SizedBox(height: height * 0.03),
                   Container(
                     width: width * 0.2,
@@ -336,6 +336,7 @@ class _HomePageState extends State<HomePage> {
                     height: height * 0.25,
                     color: Colors.green,
                   ),
+                  // TODO : Replace with charts
                 ],
               ),
               Center(
@@ -352,7 +353,7 @@ class _HomePageState extends State<HomePage> {
                             if (snapshot.connectionState ==
                                     ConnectionState.waiting &&
                                 !snapshot.hasData) {
-                              return const SizedBox(
+                              return SizedBox(
                                 width: 640,
                                 height: 480,
                                 child: Center(
@@ -360,7 +361,7 @@ class _HomePageState extends State<HomePage> {
                                     width: 60,
                                     height: 60,
                                     child: CircularProgressIndicator(
-                                      color: Color(0xFF1331F5),
+                                      color: ProjectColors.primary,
                                     ),
                                   ),
                                 ),
