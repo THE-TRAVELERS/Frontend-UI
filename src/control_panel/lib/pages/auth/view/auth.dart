@@ -45,8 +45,8 @@ class AuthPage extends StatelessWidget {
                   height: height * 0.2,
                 ),
                 const Text(
-                  '''
-Veuillez vous identifier pour accéder au panneau de contrôle.''',
+                  'Veuillez vous identifier'
+                  ' pour accéder au panneau de contrôle.',
                   style: TextStyle(fontSize: 18),
                 ),
                 SizedBox(height: height * 0.03),
