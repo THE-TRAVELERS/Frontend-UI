@@ -1,4 +1,4 @@
-import 'package:control_panel/constants/constants.dart';
+import 'package:control_panel/constants/paths.dart';
 import 'package:control_panel/pages/auth/view/auth.dart';
 import 'package:control_panel/pages/health/view/health.dart';
 import 'package:control_panel/pages/home/view/home.dart';
