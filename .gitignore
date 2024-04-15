@@ -1,1 +1,4 @@
+# This file is used to ignore files and directories in the project from pushing to the repository
+
+# Ignoring web build directory
 web
