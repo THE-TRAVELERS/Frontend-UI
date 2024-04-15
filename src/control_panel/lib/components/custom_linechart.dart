@@ -1,4 +1,4 @@
-import 'package:control_panel/pages/home/logic/controller.dart';
+import 'package:control_panel/models/charpoint.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 

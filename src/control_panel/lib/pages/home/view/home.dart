@@ -4,6 +4,7 @@ import 'dart:typed_data';
 
 import 'package:control_panel/components/custom_linechart.dart';
 import 'package:control_panel/components/custom_stateicon.dart';
+import 'package:control_panel/models/charpoint.dart';
 import 'package:control_panel/models/websocket.dart';
 import 'package:control_panel/constants/paths.dart';
 import 'package:control_panel/constants/urls.dart';
