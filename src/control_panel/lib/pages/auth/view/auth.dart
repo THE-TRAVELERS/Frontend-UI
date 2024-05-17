@@ -1,6 +1,7 @@
 import 'package:control_panel/components/custom_button.dart';
 import 'package:control_panel/components/custom_textfield.dart';
 import 'package:control_panel/constants/colors.dart';
+import 'package:control_panel/constants/paths.dart';
 import 'package:control_panel/pages/home/view/home.dart';
 import 'package:flutter/material.dart';
 
@@ -41,7 +42,7 @@ class AuthPage extends StatelessWidget {
             child: Column(
               children: [
                 Image.asset(
-                  'img/logotype_noir_vide.png',
+                  Paths.logoBlackVoid,
                   width: width * 0.3,
                   height: height * 0.2,
                 ),
@@ -128,19 +129,19 @@ class AuthPage extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Image.asset(
-                      'img/logo_esilv.png',
+                      Paths.logoGotronic,
                       width: 100,
                       height: 100,
                     ),
                     SizedBox(width: width * 0.02),
                     Image.asset(
-                      'img/logo_gotronic.png',
+                      Paths.logoEsilv,
                       width: 150,
                       height: 100,
                     ),
                     SizedBox(width: width * 0.02),
                     Image.asset(
-                      'img/logo_dvic.png',
+                      Paths.logoDvic,
                       width: 100,
                       height: 100,
                     ),
