@@ -96,6 +96,14 @@ To open multiple websockets, just open another terminal and change the port numb
 python debug_server.py 8766
 ```
 
+### Start the raspberry pi health server
+
+To start the server that will send the health data of the raspberry pi, run the following command:
+
+```bash
+python rasp_server.py --cpu-temp-port 8768 --cpu-usage-port 8769 --ram-usage-port 8770
+```
+
 ### Troubleshooting
 
 If you encouter the issue `Missing index.html.`, you can run the following command to fix it:

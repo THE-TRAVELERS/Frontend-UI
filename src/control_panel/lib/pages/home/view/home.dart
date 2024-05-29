@@ -56,6 +56,27 @@ class _HomePageState extends State<HomePage> {
 
   // ---------- ---------- Internal Sensors ---------- ---------- //
   bool isInternalSensorsConnected = false;
+
+  // TEMPERATURE
+  final String raspTempTitle = 'Température interne (°C)';
+  final CustomWebSocket _raspTempWebsocket = CustomWebSocket(URLS.raspTemp);
+  bool isRaspTempServerConnected = false;
+  List<double> raspTempData = [];
+  Timer? raspTempTimer;
+
+  // CPU
+  final String raspCPUTitle = 'Charge CPU (%)';
+  final CustomWebSocket _raspCPUWebsocket = CustomWebSocket(URLS.raspCPU);
+  bool isRaspCPUServerConnected = false;
+  List<double> raspCPUData = [];
+  Timer? raspCPUTimer;
+
+  // RAM
+  final String raspRAMTitle = 'Charge RAM (%)';
+  final CustomWebSocket _raspRAMWebsocket = CustomWebSocket(URLS.raspRAM);
+  bool isRaspRAMServerConnected = false;
+  List<double> raspRAMData = [];
+  Timer? raspRAMTimer;
   // ---------- ---------- Internal Sensors ---------- ---------- //
 
   @override
@@ -63,14 +84,24 @@ class _HomePageState extends State<HomePage> {
     super.initState();
   }
 
-  void startInternalSensors() {}
+  void startInternalSensors() {
+    raspTempRoutine();
+    raspCPURoutine();
+    raspRAMRoutine();
+  }
+
   void startExternalSensors() {
     pressureRoutine();
     temperatureRoutine();
     humidityRoutine();
   }
 
-  void stopInternalSensorsTimers() {}
+  void stopInternalSensorsTimers() {
+    raspTempTimer?.cancel();
+    raspCPUTimer?.cancel();
+    raspRAMTimer?.cancel();
+  }
+
   void stopExternalSensorsTimers() {
     pressureTimer?.cancel();
     temperatureTimer?.cancel();
@@ -79,6 +110,10 @@ class _HomePageState extends State<HomePage> {
 
   void closeInternalSensorsConnection() {
     stopInternalSensorsTimers();
+
+    _raspTempWebsocket.disconnect();
+    _raspCPUWebsocket.disconnect();
+    _raspRAMWebsocket.disconnect();
   }
 
   void closeExternalSensorsConnection() {
@@ -178,6 +213,30 @@ class _HomePageState extends State<HomePage> {
       const Duration(seconds: 10),
       (timer) => routine(timer, _humidityWebsocket, isHumidityServerConnected,
           (value) => isHumidityServerConnected = value),
+    );
+  }
+
+  void raspTempRoutine() async {
+    raspTempTimer = Timer.periodic(
+      const Duration(seconds: 10),
+      (timer) => routine(timer, _raspTempWebsocket, isRaspTempServerConnected,
+          (value) => isRaspTempServerConnected = value),
+    );
+  }
+
+  void raspCPURoutine() async {
+    raspCPUTimer = Timer.periodic(
+      const Duration(seconds: 10),
+      (timer) => routine(timer, _raspCPUWebsocket, isRaspCPUServerConnected,
+          (value) => isRaspCPUServerConnected = value),
+    );
+  }
+
+  void raspRAMRoutine() async {
+    raspRAMTimer = Timer.periodic(
+      const Duration(seconds: 10),
+      (timer) => routine(timer, _raspRAMWebsocket, isRaspRAMServerConnected,
+          (value) => isRaspRAMServerConnected = value),
     );
   }
 
@@ -307,26 +366,99 @@ class _HomePageState extends State<HomePage> {
             children: [
               Column(
                 children: [
-                  // TODO: Replace with charts
                   SizedBox(height: height * 0.03),
-                  Container(
-                    width: width * 0.2,
-                    height: height * 0.25,
-                    color: Colors.blue,
+                  StreamBuilder(
+                    stream: _raspTempWebsocket.stream,
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Center(
+                          child: CircularProgressIndicator(),
+                        );
+                      }
+                      if (snapshot.connectionState == ConnectionState.active &&
+                          snapshot.hasData) {
+                        return SizedBox(
+                          width: width * 0.2,
+                          height: height * 0.25,
+                          child: CustomLineChart(
+                            getValues(
+                                update(convert(snapshot.data), raspTempData)),
+                            title: raspTempTitle,
+                          ),
+                        );
+                      }
+                      return SizedBox(
+                        width: width * 0.2,
+                        height: height * 0.25,
+                        child: CustomLineChart(
+                          getValues(raspTempData),
+                          title: raspTempTitle,
+                        ),
+                      );
+                    },
                   ),
                   SizedBox(height: height * 0.008),
-                  Container(
-                    width: width * 0.2,
-                    height: height * 0.25,
-                    color: Colors.orange,
+                  StreamBuilder(
+                    stream: _raspCPUWebsocket.stream,
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Center(
+                          child: CircularProgressIndicator(),
+                        );
+                      }
+                      if (snapshot.connectionState == ConnectionState.active &&
+                          snapshot.hasData) {
+                        return SizedBox(
+                          width: width * 0.2,
+                          height: height * 0.25,
+                          child: CustomLineChart(
+                            getValues(
+                                update(convert(snapshot.data), raspCPUData)),
+                            title: raspCPUTitle,
+                          ),
+                        );
+                      }
+                      return SizedBox(
+                        width: width * 0.2,
+                        height: height * 0.25,
+                        child: CustomLineChart(
+                          getValues(raspCPUData),
+                          title: raspCPUTitle,
+                        ),
+                      );
+                    },
                   ),
                   SizedBox(height: height * 0.008),
-                  Container(
-                    width: width * 0.2,
-                    height: height * 0.25,
-                    color: Colors.green,
+                  StreamBuilder(
+                    stream: _raspRAMWebsocket.stream,
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Center(
+                          child: CircularProgressIndicator(),
+                        );
+                      }
+                      if (snapshot.connectionState == ConnectionState.active &&
+                          snapshot.hasData) {
+                        return SizedBox(
+                          width: width * 0.2,
+                          height: height * 0.25,
+                          child: CustomLineChart(
+                            getValues(
+                                update(convert(snapshot.data), raspRAMData)),
+                            title: raspRAMTitle,
+                          ),
+                        );
+                      }
+                      return SizedBox(
+                        width: width * 0.2,
+                        height: height * 0.25,
+                        child: CustomLineChart(
+                          getValues(raspRAMData),
+                          title: raspRAMTitle,
+                        ),
+                      );
+                    },
                   ),
-                  // TODO : Replace with charts
                 ],
               ),
               Center(
