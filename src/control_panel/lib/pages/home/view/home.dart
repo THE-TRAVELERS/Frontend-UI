@@ -469,48 +469,65 @@ class _HomePageState extends State<HomePage> {
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
                         Center(
-                            child: StreamBuilder(
-                          stream: _videoWebsocket.stream,
-                          builder: (context, snapshot) {
-                            if (snapshot.connectionState ==
-                                    ConnectionState.waiting &&
-                                !snapshot.hasData) {
+                          child: StreamBuilder(
+                            stream: _videoWebsocket.stream,
+                            builder: (context, snapshot) {
+                              if (snapshot.connectionState ==
+                                      ConnectionState.waiting &&
+                                  !snapshot.hasData) {
+                                return SizedBox(
+                                  width: 640,
+                                  height: 480,
+                                  child: Center(
+                                    child: SizedBox(
+                                      width: 60,
+                                      height: 60,
+                                      child: CircularProgressIndicator(
+                                        color: ProjectColors.primary,
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              }
+                              if (snapshot.connectionState ==
+                                      ConnectionState.active &&
+                                  snapshot.hasData) {
+                                return Container(
+                                  decoration: BoxDecoration(
+                                    border: Border.all(
+                                      color: ProjectColors.primary,
+                                      width: 3,
+                                    ),
+                                  ),
+                                  child: Image.memory(
+                                    Uint8List.fromList(
+                                      base64Decode(
+                                        (snapshot.data.toString()),
+                                      ),
+                                    ),
+                                    width: 640,
+                                    height: 480,
+                                    gaplessPlayback: true,
+                                    excludeFromSemantics: true,
+                                  ),
+                                );
+                              }
                               return SizedBox(
                                 width: 640,
                                 height: 480,
-                                child: Center(
-                                  child: SizedBox(
-                                    width: 60,
-                                    height: 60,
-                                    child: CircularProgressIndicator(
-                                      color: ProjectColors.primary,
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    border: Border.all(
+                                      color: ProjectColors.redError,
+                                      width: 3,
                                     ),
                                   ),
+                                  child: Image.asset(Paths.noImages),
                                 ),
                               );
-                            }
-                            if (snapshot.connectionState ==
-                                    ConnectionState.active &&
-                                snapshot.hasData) {
-                              return Image.memory(
-                                Uint8List.fromList(
-                                  base64Decode(
-                                    (snapshot.data.toString()),
-                                  ),
-                                ),
-                                width: 640,
-                                height: 480,
-                                gaplessPlayback: true,
-                                excludeFromSemantics: true,
-                              );
-                            }
-                            return SizedBox(
-                              width: 640,
-                              height: 480,
-                              child: Image.asset(Paths.noImages),
-                            );
-                          },
-                        ))
+                            },
+                          ),
+                        )
                       ],
                     ),
                     SizedBox(height: height * 0.03),
